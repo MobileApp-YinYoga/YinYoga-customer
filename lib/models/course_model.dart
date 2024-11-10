@@ -8,6 +8,7 @@ class Course {
   final int duration;
   final double price;
   final String courseType;
+  final String description;
   final DateTime createdAt; // Thêm thuộc tính createdAt
 
   Course({
@@ -21,6 +22,7 @@ class Course {
     required this.price,
     required this.courseType,
     required this.createdAt,
+    required this.description,
   });
 
   Map<String, dynamic> toMap() {
@@ -33,6 +35,7 @@ class Course {
       'duration': duration,
       'price': price,
       'courseType': courseType,
+      'description': description,
       'createdAt': createdAt.toIso8601String(),
     };
   }
@@ -48,6 +51,7 @@ class Course {
       duration: map['duration'],
       price: map['price'],
       courseType: map['courseType'],
+      description: map['description'],
       createdAt: DateTime.parse(map['createdAt']),
     );
   }

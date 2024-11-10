@@ -8,12 +8,16 @@ class NotificationService {
     return await _repository.fetchNotifications();
   }
 
-  Future<void> addNotification(NotificationModel notification) async {
-    await _repository.addNotification(notification);
+  Future<void> markAsRead(String id) async {
+    await _repository.updateNotification(id, {'isRead': true});
   }
 
-  Future<void> markAsRead(int id) async {
-    await _repository.updateNotification(id, {'isRead': true});
+  Future<void> markAsUnread(String id) async {
+    await _repository.updateNotification(id, {'isRead': false});
+  }
+
+  Future<void> addNotification(NotificationModel notification) async {
+    await _repository.addNotification(notification);
   }
 
   Future<void> clearNotifications() async {
@@ -21,5 +25,9 @@ class NotificationService {
     for (var notification in notifications) {
       await _repository.updateNotification(notification.id!, {'isRead': true});
     }
+  }
+
+   Future<void> deleteNotification(String notificationId) async {
+    await _repository.deleteNotification(notificationId);
   }
 }

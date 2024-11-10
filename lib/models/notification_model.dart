@@ -1,5 +1,5 @@
 class NotificationModel {
-  final int id;
+  final String id;
   final String title;
   final String email;
   final String description;
@@ -18,7 +18,7 @@ class NotificationModel {
   });
 
   NotificationModel copyWith({
-    int? id,
+    String? id,
     String? title,
     String? email,
     String? description,
@@ -44,7 +44,7 @@ class NotificationModel {
       'email': email,
       'description': description,
       'time': time,
-      'isRead': isRead ? 1 : 0,
+      'isRead': isRead,
       'createdDate': createdDate,
     };
   }
@@ -56,7 +56,7 @@ class NotificationModel {
       email: map['email'],
       description: map['description'] ?? '',
       time: map['time'],
-      isRead: map['isRead'] == 1,
+      isRead: map['isRead'],
       createdDate: map['createdDate'],
     );
   }

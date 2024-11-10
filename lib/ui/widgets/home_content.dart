@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:yinyoga_customer/models/course_model.dart';
 import 'package:yinyoga_customer/repositories/course_repository.dart';
 import 'package:yinyoga_customer/ui/widgets/search_homepage.dart';
+import 'package:yinyoga_customer/ui/widgets/course_card.dart'; // Import the new widget
 
 class HomeContent extends StatefulWidget {
   const HomeContent({super.key});
@@ -135,83 +136,16 @@ class _HomeContentState extends State<HomeContent> {
             const SizedBox(height: 12),
             Column(
               children: _newCourses.map((course) {
-                return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 8.0),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 2,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.asset(
-                            'assets/images/courses/${course.imageUrl}',
-                            width: 80,
-                            height: 80,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                course.courseName,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                '${course.dayOfWeek} - ${course.time}',
-                                style: TextStyle(color: Colors.grey[700]),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Column(
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.add_circle_outline),
-                              color: Theme.of(context).primaryColor,
-                              onPressed: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content: Text(
-                                          '${course.courseName} added to My Booking')),
-                                );
-                              },
-                            ),
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    const Color(0xFF6D674B), // Màu nền của nút
-                                foregroundColor: Colors.white, // Màu chữ
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 4),
-                                textStyle: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              onPressed: () {
-                                Navigator.pushNamed(context, '/checkout');
-                              },
-                              child: Text('\$${course.price} Booking now'),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
+                return CourseCard(
+                  course: course,
+                  onAddToBooking: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('${course.courseName} added to My Booking')),
+                    );
+                  },
+                  onBookNow: () {
+                    Navigator.pushNamed(context, '/checkout');
+                  },
                 );
               }).toList(),
             ),

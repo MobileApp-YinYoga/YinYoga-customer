@@ -127,6 +127,7 @@ class ProfileScreen extends StatelessWidget {
                 'duration': 90,
                 'price': 120.0,
                 'courseType': 'Intermediate',
+                'description': 'A gentle yoga class that focuses on meditation and relaxation. Suitable for beginners and intermediate practitioners.',
                 'createdAt': DateTime.now().subtract(Duration(days: 30)).toIso8601String(),
               },
               {
@@ -138,6 +139,7 @@ class ProfileScreen extends StatelessWidget {
                 'duration': 75,
                 'price': 150.0,
                 'courseType': 'Advanced',
+                'description': 'A high-intensity yoga class that focuses on strength and flexibility. Suitable for advanced practitioners.',
                 'createdAt': DateTime.now().subtract(Duration(days: 15)).toIso8601String(),
               },
             ];
