@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:yinyoga_customer/dto/topCourseDTO.dart';
 import '../models/course_model.dart';
 
 class CourseRepository {
@@ -26,22 +27,44 @@ class CourseRepository {
     }
   }
 
-  Future<List<Course>> fetchTopCategories() async {
+  Future<List<TopCourseDTO>> fetchTopCourses() async {
     try {
-      // Lấy 5 khóa học phổ biến nhất (giả định theo sức chứa cao nhất)
-      QuerySnapshot snapshot = await _firestore
+      // Fetch the courses ordered by their capacity (assuming this as popularity indicator)
+      QuerySnapshot courseSnapshot = await _firestore
           .collection('courses')
-          .orderBy('capacity',
-              descending: true) // Sắp xếp theo sức chứa (capacity) giảm dần
+          .orderBy('capacity', descending: true)
           .limit(5)
           .get();
 
-      return snapshot.docs
-          .map((doc) =>
-              Course.fromMap(doc.data() as Map<String, dynamic>, doc.id))
-          .toList();
+      List<TopCourseDTO> topCourses = [];
+
+      for (var courseDoc in courseSnapshot.docs) {
+        // Extract course data
+        String courseId = courseDoc.id;
+        String courseName = courseDoc['courseName'] ?? 'Unknown Course';
+        String imageUrl = courseDoc['imageUrl'] ?? ''; // Include imageUrl
+
+        // Count associated ClassInstances for this course
+        QuerySnapshot classInstanceSnapshot = await _firestore
+            .collection('classInstances')
+            .where('courseId', isEqualTo: courseId)
+            .get();
+
+        int numberOfClassInstances = classInstanceSnapshot.size;
+
+        // Create DTO object
+        TopCourseDTO topCourse = TopCourseDTO(
+          courseId: courseId,
+          courseName: courseName,
+          imageUrl: imageUrl,
+          numberOfClassInstances: numberOfClassInstances,
+        );
+        topCourses.add(topCourse);
+      }
+
+      return topCourses;
     } catch (e) {
-      print('Error fetching top categories: $e');
+      print('Error fetching top courses: $e');
       return [];
     }
   }

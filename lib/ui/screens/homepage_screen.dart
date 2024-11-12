@@ -18,9 +18,9 @@ class _HomepageScreenState extends State<HomepageScreen> {
   int _selectedIndex = 0;
 
   final List<Widget> _pages = [
-    HomeContent(), // Nội dung chính của Home
     AllCoursesScreen(),
     BookingScreen(userEmail: 'trannq2003@gmail.com'),
+    HomeContent(),
     NotificationsScreen(),
     ProfileScreen(),
   ];
@@ -34,7 +34,6 @@ class _HomepageScreenState extends State<HomepageScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomHeader(title: 'YinYoga'), // Header tùy chỉnh
       body: _pages[_selectedIndex],
       bottomNavigationBar: CustomFooter(
         currentIndex: _selectedIndex,

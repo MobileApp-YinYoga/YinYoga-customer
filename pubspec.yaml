@@ -67,11 +67,11 @@ flutter:
     - assets/images/courses/  
     - assets/images/background/welcome_image.png
     - assets/images/user.jpg
-    - assets/icons/home.png
-    - assets/icons/courses.png
-    - assets/icons/booking.png
-    - assets/icons/notifications.png
-    - assets/icons/profile.png
+    - assets/icons/
+    - assets/icons/navigations/
+    - assets/icons/utils/
+    - assets/images/background/homepage.png
+    - assets/images/courses/
 
   fonts:
     - family: Poppins
