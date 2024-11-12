@@ -88,4 +88,15 @@ class CourseRepository {
       return [];
     }
   }
+
+  Future<Course> fetchCourseById(String courseId) async {
+    try {
+      DocumentSnapshot courseDoc =
+          await _firestore.collection('courses').doc(courseId).get();
+      return Course.fromMap(courseDoc.data() as Map<String, dynamic>, courseId);
+    } catch (e) {
+      print('Error fetching course by ID: $e');
+      return Course.empty();
+    }
+  }
 }

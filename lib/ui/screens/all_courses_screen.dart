@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:yinyoga_customer/models/course_model.dart';
 import 'package:yinyoga_customer/services/course_service.dart';
+import 'package:yinyoga_customer/ui/screens/course_detail_screen.dart';
 
 class AllCoursesScreen extends StatefulWidget {
   @override
@@ -14,8 +15,8 @@ class _AllCoursesScreenState extends State<AllCoursesScreen> {
   String _searchQuery = '';
   String? _selectedFilter;
   final List<String> _filterOptions = [
-    'A - Z',
-    'Z - A',
+    'Class instance: A - Z',
+    'Class instance: Z - A',
     'Price: Low to High',
     'Price: High to Low',
   ];
@@ -59,11 +60,11 @@ class _AllCoursesScreenState extends State<AllCoursesScreen> {
 
     // Apply sorting based on selected filter
     switch (_selectedFilter) {
-      case 'A - Z':
+      case 'Class instance: A - Z':
         filteredCourses.sort((a, b) =>
             a.courseName.toLowerCase().compareTo(b.courseName.toLowerCase()));
         break;
-      case 'Z - A':
+      case 'Class instance: Z - A':
         filteredCourses.sort((a, b) =>
             b.courseName.toLowerCase().compareTo(a.courseName.toLowerCase()));
         break;
@@ -82,10 +83,6 @@ class _AllCoursesScreenState extends State<AllCoursesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-      ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: Column(
@@ -128,6 +125,8 @@ class _AllCoursesScreenState extends State<AllCoursesScreen> {
                   color: Color(0xFF6D674B), // Brown color
                 ),
               ),
+              // đường kẻ ngang
+              
             ),
             Expanded(
               child: FutureBuilder<List<Course>>(
@@ -142,6 +141,7 @@ class _AllCoursesScreenState extends State<AllCoursesScreen> {
                   } else {
                     List<Course> courses =
                         _filterAndSearchCourses(snapshot.data!);
+
                     return ListView.builder(
                       itemCount: courses.length,
                       itemBuilder: (context, index) {
@@ -245,7 +245,7 @@ class _AllCoursesScreenState extends State<AllCoursesScreen> {
       context: context,
       position: RelativeRect.fromLTRB(
         overlay.size.width - 100,
-        kToolbarHeight + 60,
+        kToolbarHeight + 10,
         0,
         0,
       ),
@@ -253,6 +253,7 @@ class _AllCoursesScreenState extends State<AllCoursesScreen> {
         return PopupMenuItem<String>(
           value: option,
           child: GestureDetector(
+            // sự kiện onclick
             onTap: () {
               _applyFilter(option);
               Navigator.pop(context);
@@ -280,13 +281,24 @@ class _AllCoursesScreenState extends State<AllCoursesScreen> {
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       child: Stack(
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: Image.asset(
-              'assets/images/courses/${course.imageUrl}',
-              height: 150,
-              width: double.infinity,
-              fit: BoxFit.cover,
+          GestureDetector(
+            onTap: () {
+              // Handle image tap action here (e.g., navigate to course details)
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CourseDetailsScreen(course: course),
+                ),
+              );
+            },
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Image.asset(
+                'assets/images/courses/${course.imageUrl}',
+                height: 150,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
           Positioned(

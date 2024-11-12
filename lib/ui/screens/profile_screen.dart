@@ -157,15 +157,22 @@ class ProfileScreen extends StatelessWidget {
                   'courseId': courseIds.isNotEmpty ? courseIds[0] : '',
                   'dates': DateTime.now().add(Duration(days: 2)).toIso8601String(),
                   'teacher': 'Emma Johnson',
-                  'status': 'scheduled',
+                  'imageUrl': 'energy_yoga.png',
                 },
                 {
                   'instanceId': 'YOGA1002',
                   'courseId': courseIds.length > 1 ? courseIds[1] : '',
                   'dates': DateTime.now().add(Duration(days: 5)).toIso8601String(),
                   'teacher': 'John Doe',
-                  'status': 'completed',
+                  'imageUrl': 'hami_yoga.png',
                 },
+                {
+                  'instanceId': 'YOGA1003',
+                  'courseId': courseIds.isNotEmpty ? courseIds[0] : '',
+                  'dates': DateTime.now().add(Duration(days: 7)).toIso8601String(),
+                  'teacher': 'Emma Johnson',
+                  'imageUrl': 'flow_yoga.png',
+                }
               ],
             );
 

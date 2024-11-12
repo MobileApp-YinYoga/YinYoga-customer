@@ -40,6 +40,8 @@ class Course {
     };
   }
 
+
+
   factory Course.fromMap(Map<String, dynamic> map, String id) {
     return Course(
       id: id,
@@ -55,4 +57,18 @@ class Course {
       createdAt: DateTime.parse(map['createdAt']),
     );
   }
+
+  //thêm empty constructor
+  Course.empty()
+      : id = '',
+        courseName = '',
+        imageUrl = '',
+        dayOfWeek = '',
+        time = '',
+        capacity = 0,
+        duration = 0,
+        price = 0,
+        courseType = '',
+        description = '',
+        createdAt = DateTime.now();
 }

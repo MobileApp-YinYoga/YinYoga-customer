@@ -25,4 +25,9 @@ class CourseService {
   Future<List<Course>> getNewCourses() async {
     return await _courseRepository.fetchNewCourses();
   }
+
+  // Method to fetch course by ID
+  Future<Course> getCourseById(String courseId) async {
+    return await _courseRepository.fetchCourseById(courseId);
+  }
 }

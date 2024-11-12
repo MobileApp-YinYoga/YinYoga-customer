@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:yinyoga_customer/models/course_model.dart';
 import 'package:yinyoga_customer/ui/screens/booking_screen.dart';
+import 'package:yinyoga_customer/ui/screens/course_detail_screen.dart';
 import 'package:yinyoga_customer/ui/screens/notification_screen.dart';
 import 'package:yinyoga_customer/ui/widgets/home_content.dart';
 import 'all_courses_screen.dart';
@@ -15,8 +17,9 @@ class HomepageScreen extends StatefulWidget {
 }
 
 class _HomepageScreenState extends State<HomepageScreen> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 2;
 
+  // dữ liệu mẫu cho 1 course
   final List<Widget> _pages = [
     AllCoursesScreen(),
     BookingScreen(userEmail: 'trannq2003@gmail.com'),

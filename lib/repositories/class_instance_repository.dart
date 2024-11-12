@@ -13,23 +13,35 @@ class ClassInstanceRepository {
     }
   }
 
-  Future<List<ClassInstance>> fetchAllClassInstances() async {
-    QuerySnapshot snapshot = await _firestore.collection('class_instances').get();
-
-    return snapshot.docs
-        .map((doc) => ClassInstance.fromMap(doc.data() as Map<String, dynamic>, doc.id))
-        .toList();
+  // Fetch all class instances
+  Future<List<ClassInstance>> getAllInstances() async {
+    try {
+      QuerySnapshot querySnapshot =
+          await _firestore.collection('classInstances').get();
+      return querySnapshot.docs
+          .map((doc) =>
+              ClassInstance.fromMap(doc.data() as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      print('Error fetching all class instances: $e');
+      return [];
+    }
   }
 
-  Future<List<ClassInstance>> fetchClassInstancesByCourse(String courseId) async {
-  QuerySnapshot snapshot = await _firestore
-      .collection('classInstances')
-      .where('courseId', isEqualTo: courseId)
-      .get();
-
-  return snapshot.docs
-      .map((doc) => ClassInstance.fromMap(doc.data() as Map<String, dynamic>, doc.id))
-      .toList();
-}
-
+  // Fetch class instances by course ID
+  Future<List<ClassInstance>> getInstancesByCourseId(String courseId) async {
+    try {
+      QuerySnapshot querySnapshot = await _firestore
+          .collection('classInstances')
+          .where('courseId', isEqualTo: courseId)
+          .get();
+      return querySnapshot.docs
+          .map((doc) =>
+              ClassInstance.fromMap(doc.data() as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      print('Error fetching class instances by course ID: $e');
+      return [];
+    }
+  }
 }

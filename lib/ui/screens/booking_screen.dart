@@ -1,49 +1,77 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:yinyoga_customer/services/booking_service.dart';
 
 class BookingScreen extends StatelessWidget {
-  final String userEmail; // Email của người dùng hiện tại để lấy dữ liệu booking
-  final BookingService _bookingService = BookingService(); // Khởi tạo BookingService để làm việc với dữ liệu
+  final String userEmail; // Current user's email to fetch booking data
+  final BookingService _bookingService =
+      BookingService(); // Initialize BookingService
+
   BookingScreen({super.key, required this.userEmail});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Booking'), // Tiêu đề AppBar
+        title: const Text(
+          'My Booking',
+          style: const TextStyle(
+            fontSize: 20,
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF6D674B),
+          ),
+        ),
+        centerTitle: true,
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: _bookingService.getUserBookings(userEmail), // Lấy dữ liệu booking từ dịch vụ
+        future: _bookingService
+            .getUserBookings(userEmail), // Fetch bookings from the service
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            // Hiển thị vòng tròn tải khi dữ liệu đang được lấy
+            // Display a loading indicator while fetching data
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            // Hiển thị lỗi nếu xảy ra lỗi trong quá trình lấy dữ liệu
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (snapshot.hasData && snapshot.data!.isEmpty) {
-            // Hiển thị giao diện khi không có dữ liệu booking
+            // Handle any errors during data fetching
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.notifications_off, size: 100, color: Colors.grey),
+                  const Icon(Icons.error_outline, size: 80, color: Colors.red),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Error: ${snapshot.error}',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                ],
+              ),
+            );
+          } else if (snapshot.hasData && snapshot.data!.isEmpty) {
+            // Display when no booking data is available
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.notifications_off,
+                      size: 100, color: Colors.grey),
                   const SizedBox(height: 20),
                   const Text(
                     'No Courses',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Poppins'),
                   ),
                   const SizedBox(height: 10),
                   const Text(
-                    'Looks like you have not enrolled for any course yet',
+                    'Looks like you have not enrolled for any course yet.',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 16),
+                    style: TextStyle(fontSize: 16, fontFamily: 'Poppins'),
                   ),
                   const SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: () {
-                      // Chuyển hướng đến trang tất cả các khoá học khi người dùng nhấn nút
+                      // Navigate to all courses page
                       Navigator.pushNamed(context, '/all_courses');
                     },
                     child: const Text('Explore Courses'),
@@ -52,27 +80,60 @@ class BookingScreen extends StatelessWidget {
               ),
             );
           } else if (snapshot.hasData) {
-            // Hiển thị danh sách booking nếu có dữ liệu
+            // Display the list of bookings
             List<Map<String, dynamic>> bookings = snapshot.data!;
             return ListView.builder(
-              itemCount: bookings.length, // Số lượng item trong danh sách
+              itemCount: bookings.length,
               itemBuilder: (context, index) {
-                final booking = bookings[index]; // Dữ liệu booking tại vị trí index
+                final booking = bookings[index];
                 return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16), // Cách đều các card
+                  margin:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                  elevation: 3,
                   child: ListTile(
-                    title: Text('Instance ID: ${booking['instanceId']}'), // Hiển thị ID của instance
-                    subtitle: Text('Status: ${booking['status']}'), // Hiển thị trạng thái booking
-                    trailing: Text(
-                      booking['bookingDate'], // Hiển thị ngày đặt
-                      style: const TextStyle(color: Colors.grey),
+                    leading: CircleAvatar(
+                      backgroundColor: Colors.blueGrey[100],
+                      child: Text(
+                        booking['instanceId'].substring(0, 2).toUpperCase(),
+                        style: const TextStyle(
+                            color: Color(0xFF6D674B),
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    title: Text(
+                      'Instance ID: ${booking['instanceId']}',
+                      style: const TextStyle(
+                          fontFamily: 'Poppins', fontWeight: FontWeight.w600),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Status: ${booking['status']}',
+                          style: const TextStyle(fontFamily: 'Poppins'),
+                        ),
+                        Text(
+                          'Date: ${booking['bookingDate']}',
+                          style: const TextStyle(
+                              color: Colors.grey, fontFamily: 'Poppins'),
+                        ),
+                      ],
+                    ),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.arrow_forward_ios,
+                          color: Colors.grey),
+                      onPressed: () {
+                        // Handle navigation or action on booking
+                      },
                     ),
                   ),
                 );
               },
             );
           } else {
-            // Trường hợp không có dữ liệu khả dụng
+            // Display if no data is available (fallback case)
             return const Center(child: Text('No data available'));
           }
         },

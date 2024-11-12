@@ -71,7 +71,7 @@ flutter:
     - assets/icons/navigations/
     - assets/icons/utils/
     - assets/images/background/homepage.png
-    - assets/images/courses/
+    - assets/images/instances/
 
   fonts:
     - family: Poppins
