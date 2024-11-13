@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:yinyoga_customer/models/course_model.dart';
+import 'package:yinyoga_customer/services/cart_service.dart';
 import 'package:yinyoga_customer/services/course_service.dart';
 import 'package:yinyoga_customer/ui/screens/course_detail_screen.dart';
 
 class AllCoursesScreen extends StatefulWidget {
+  String title; // Đảm bảo truyền vào title
+
+  AllCoursesScreen({required this.title});
+
   @override
   _AllCoursesScreenState createState() => _AllCoursesScreenState();
 }
 
 class _AllCoursesScreenState extends State<AllCoursesScreen> {
   final CourseService _courseService = CourseService();
+  final CartService _cartService = CartService();
   Future<List<Course>>? _coursesFuture;
   TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
@@ -29,7 +35,17 @@ class _AllCoursesScreenState extends State<AllCoursesScreen> {
 
   void _fetchCourses() {
     setState(() {
-      _coursesFuture = _courseService.getAllCourses();
+      if (widget.title == "All courses") {
+        // Fetch all courses (or top courses)
+        _coursesFuture = _courseService.getAllCourses();
+      } else {
+        // Fetch courses filtered by category (e.g., Category 1)
+        _coursesFuture = _courseService.getCoursesByCategory(widget.title);
+        // Set the selected filter to category name
+        _selectedFilter = widget.title;
+
+        widget.title = "Related courses";
+      }
     });
   }
 
@@ -48,6 +64,8 @@ class _AllCoursesScreenState extends State<AllCoursesScreen> {
   void _clearFilter() {
     setState(() {
       _selectedFilter = null;
+      widget.title == "All courses";
+      _coursesFuture = _courseService.getAllCourses();
     });
   }
 
@@ -60,11 +78,11 @@ class _AllCoursesScreenState extends State<AllCoursesScreen> {
 
     // Apply sorting based on selected filter
     switch (_selectedFilter) {
-      case 'Class instance: A - Z':
+      case 'Course: A - Z':
         filteredCourses.sort((a, b) =>
             a.courseName.toLowerCase().compareTo(b.courseName.toLowerCase()));
         break;
-      case 'Class instance: Z - A':
+      case 'Course: Z - A':
         filteredCourses.sort((a, b) =>
             b.courseName.toLowerCase().compareTo(a.courseName.toLowerCase()));
         break;
@@ -82,6 +100,20 @@ class _AllCoursesScreenState extends State<AllCoursesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          widget.title,
+          style: const TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Poppins',
+            color: Color(0xFF6D674B),
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: const Color.fromARGB(255, 232, 232, 232),
+        elevation: 4,
+      ),
       backgroundColor: Colors.white,
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -114,20 +146,6 @@ class _AllCoursesScreenState extends State<AllCoursesScreen> {
                   ),
                 ),
               ),
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 20.0),
-              child: Text(
-                'Popular classes',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Poppins',
-                  color: Color(0xFF6D674B), // Brown color
-                ),
-              ),
-              // đường kẻ ngang
-              
-            ),
             Expanded(
               child: FutureBuilder<List<Course>>(
                 future: _coursesFuture,
@@ -187,7 +205,7 @@ class _AllCoursesScreenState extends State<AllCoursesScreen> {
                     controller: _searchController,
                     onChanged: _handleSearch,
                     decoration: InputDecoration(
-                      hintText: 'Search for classes',
+                      hintText: 'Search for course name...',
                       border: InputBorder.none,
                       hintStyle: TextStyle(
                         fontFamily: 'Poppins',
@@ -200,7 +218,7 @@ class _AllCoursesScreenState extends State<AllCoursesScreen> {
                   GestureDetector(
                     onTap: () {
                       _searchController.clear();
-                      _handleSearch('');
+                      _handleSearch(''); // Reset search
                     },
                     child:
                         const Icon(Icons.close, color: Colors.grey, size: 24),
@@ -376,6 +394,7 @@ class _AllCoursesScreenState extends State<AllCoursesScreen> {
             child: ElevatedButton(
               onPressed: () {
                 // Handle booking action
+                _cartService.addToCart(course.id!, 'trannq2003@gmail.com');
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white.withOpacity(0.8),

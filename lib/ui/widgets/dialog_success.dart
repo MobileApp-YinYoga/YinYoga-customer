@@ -34,13 +34,29 @@ class _CustomSuccessDialogState extends State<CustomSuccessDialog> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12.0),
       ),
-      title: Text(widget.title),
+      title: Text(
+        widget.title,
+        style: const TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.check_circle, size: 50, color: Colors.green), // Added icon for visual feedback
+          const Icon(
+            Icons.check_circle,
+            size: 50,
+            color: Colors.green,
+          ), // Icon thể hiện thành công
           const SizedBox(height: 10),
-          Text(widget.content),
+          Text(
+            widget.content,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 16,
+            ),
+          ),
         ],
       ),
     );

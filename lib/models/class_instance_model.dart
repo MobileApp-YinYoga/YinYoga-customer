@@ -1,12 +1,12 @@
 class ClassInstance {
-  final String instanceId;
+  final String? id;
   final String courseId; // Liên kết với `Course`
   final DateTime dates;
   final String teacher;
   final String imageUrl;
 
   ClassInstance({
-    required this.instanceId,
+    this.id,
     required this.courseId,
     required this.dates,
     required this.teacher,
@@ -15,7 +15,6 @@ class ClassInstance {
 
   Map<String, dynamic> toMap() {
     return {
-      'instanceId': instanceId,
       'courseId': courseId,
       'dates': dates.toIso8601String(),
       'teacher': teacher,
@@ -25,7 +24,7 @@ class ClassInstance {
 
   factory ClassInstance.fromMap(Map<String, dynamic> map) {
     return ClassInstance(
-      instanceId: map['instanceId'],
+      id: map['id'],
       courseId: map['courseId'],
       dates: DateTime.parse(map['dates']),
       teacher: map['teacher'],

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:yinyoga_customer/models/class_instance_model.dart';
 import 'package:yinyoga_customer/models/course_model.dart';
+import 'package:yinyoga_customer/services/cart_service.dart';
 import 'package:yinyoga_customer/services/class_instance.dart';
+import 'package:yinyoga_customer/ui/widgets/dialog_success.dart';
 
 class CourseDetailsScreen extends StatefulWidget {
   final Course course;
@@ -15,6 +17,7 @@ class CourseDetailsScreen extends StatefulWidget {
 
 class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
   final ClassInstanceService _classInstances = ClassInstanceService();
+  final CartService _cartService = CartService();
   late Future<List<ClassInstance>> _classInstancesFuture;
 
   @override
@@ -24,33 +27,43 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
   }
 
   void _fetchClassInstances() {
-    _classInstancesFuture = _classInstances.getInstancesByCourseId(widget.course.id!);
+    _classInstancesFuture =
+        _classInstances.getInstancesByCourseId(widget.course.id!);
+    _classInstancesFuture.then((value) {
+      print('Fetched Class Instances: $value');
+    }).catchError((error) {
+      print('Error fetching class instances: $error');
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF6D674B)),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          widget.course.courseName,
-          style: const TextStyle(
-            fontSize: 18,
+        title: const Text(
+          'Course Details',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w600,
             fontFamily: 'Poppins',
-            fontWeight: FontWeight.bold,
             color: Color(0xFF6D674B),
           ),
         ),
         centerTitle: true,
+        backgroundColor: Colors.white,
+        elevation: 1, // Remove default shadow to create a clean line appearance
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1.0), // Height of the line
+          child: Container(
+            color: const Color(0xFF6D674B), // Line color
+            width: 50,
+            height: 1.0, // Line thickness
+          ),
+        ),
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -65,7 +78,16 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              // Course details
+              Text(
+                widget.course.courseName,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey,
+                ),
+              ),
+              const SizedBox(height: 4),
               Text(
                 'Type: ${widget.course.courseType}',
                 style: const TextStyle(
@@ -144,12 +166,22 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                         return const Center(child: CircularProgressIndicator());
                       } else if (snapshot.hasError) {
                         return Center(child: Text('Error: ${snapshot.error}'));
-                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                        return const Center(child: Text('No class instances available.'));
+                      } else if (!snapshot.hasData ||
+                          snapshot.data == null ||
+                          snapshot.data!.isEmpty) {
+                        return const Center(
+                            child: Text('No class instances available.'));
                       } else {
                         List<ClassInstance> classInstances = snapshot.data!;
+                        print('Fetched instances: ${classInstances.length}');
+
                         return Column(
                           children: classInstances.map((classInstance) {
+                            if (classInstance.id == null ||
+                                classInstance.dates == null) {
+                              return const Center(
+                                  child: Text('Invalid class instance data.'));
+                            }
                             return _buildClassInstance(context, classInstance);
                           }).toList(),
                         );
@@ -165,7 +197,8 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
     );
   }
 
-  Widget _buildClassInstance(BuildContext context, ClassInstance classInstance) {
+  Widget _buildClassInstance(
+      BuildContext context, ClassInstance classInstance) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       decoration: BoxDecoration(
@@ -191,6 +224,16 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
               fit: BoxFit.cover,
             ),
           ),
+          Positioned(
+            top: 16,
+            right: 16,
+            child: IconButton(
+              icon: const Icon(Icons.favorite_border, color: Colors.white),
+              onPressed: () {
+                // Handle favorite action
+              },
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -198,7 +241,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Text(
-                  classInstance.instanceId,
+                  classInstance.id!,
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -231,6 +274,47 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
             child: ElevatedButton(
               onPressed: () {
                 // Handle booking action
+                try {
+                  _cartService
+                      .addToCart(classInstance.id!, 'trannq2003@gmail.com')
+                      .then(
+                    (value) {
+                      if (value == 'Class added to cart successfully.' &&
+                          value != 'Error') {
+                        // CustomSuccessDialog
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return CustomSuccessDialog(
+                              title: 'Add to cart successfully',
+                              content:
+                                  'You have successfully booked this class instance.',
+                              onConfirm: () {
+                                Navigator.pop(context);
+                              },
+                            );
+                          },
+                        );
+                      } else if (value ==
+                          'This class is already in your cart.') {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return CustomSuccessDialog(
+                              title: 'Add to cart failed',
+                              content: 'This class is already in your cart.',
+                              onConfirm: () {
+                                Navigator.pop(context);
+                              },
+                            );
+                          },
+                        );
+                      }
+                    },
+                  );
+                } catch (e) {
+                  debugPrint('Error: $e');
+                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white.withOpacity(0.8),
@@ -248,4 +332,3 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
     );
   }
 }
-

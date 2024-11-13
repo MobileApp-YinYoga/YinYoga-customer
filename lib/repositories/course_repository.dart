@@ -29,37 +29,89 @@ class CourseRepository {
 
   Future<List<TopCourseDTO>> fetchTopCourses() async {
     try {
-      // Fetch the courses ordered by their capacity (assuming this as popularity indicator)
-      QuerySnapshot courseSnapshot = await _firestore
-          .collection('courses')
-          .orderBy('capacity', descending: true)
-          .limit(5)
-          .get();
+      // Fetch the courses, limiting to top 5 courses
+      QuerySnapshot courseSnapshot =
+          await _firestore.collection('courses').limit(5).get();
 
       List<TopCourseDTO> topCourses = [];
 
+      // A map to hold the classType and its total booking count
+      Map<String, int> classTypeBookingCount = {};
+
+      // Fetch all class instances and related booking details
       for (var courseDoc in courseSnapshot.docs) {
-        // Extract course data
         String courseId = courseDoc.id;
         String courseName = courseDoc['courseName'] ?? 'Unknown Course';
-        String imageUrl = courseDoc['imageUrl'] ?? ''; // Include imageUrl
+        String courseType = courseDoc['courseType'];
 
-        // Count associated ClassInstances for this course
+        // Fetch class instances for the current course
         QuerySnapshot classInstanceSnapshot = await _firestore
             .collection('classInstances')
             .where('courseId', isEqualTo: courseId)
             .get();
 
-        int numberOfClassInstances = classInstanceSnapshot.size;
+        for (var classInstanceDoc in classInstanceSnapshot.docs) {
+          String classInstanceId = classInstanceDoc['instanceId'];
 
-        // Create DTO object
-        TopCourseDTO topCourse = TopCourseDTO(
-          courseId: courseId,
-          courseName: courseName,
-          imageUrl: imageUrl,
-          numberOfClassInstances: numberOfClassInstances,
-        );
-        topCourses.add(topCourse);
+          // Count bookings for this class instance
+          QuerySnapshot bookingDetailSnapshot = await _firestore
+              .collection('bookingDetails')
+              .where('instanceId', isEqualTo: classInstanceId)
+              .get();
+
+          int totalBookings = bookingDetailSnapshot.size;
+
+          // Add to classTypeBookingCount map
+          if (classTypeBookingCount.containsKey(courseType)) {
+            classTypeBookingCount[courseType] =
+                classTypeBookingCount[courseType]! + totalBookings;
+          } else {
+            classTypeBookingCount[courseType] = totalBookings;
+          }
+        }
+      }
+
+      // Sort class types by total bookings (descending order)
+      var sortedClassTypes = classTypeBookingCount.entries.toList()
+        ..sort((a, b) => b.value.compareTo(a.value));
+
+      // Get the top 5 class types
+      List<String> topClassTypes =
+          sortedClassTypes.take(5).map((entry) => entry.key).toList();
+
+      // Prepare the DTO objects for the top courses
+      for (var classType in topClassTypes) {
+        // Fetch courses for this classType
+        QuerySnapshot courseSnapshot = await _firestore
+            .collection('courses')
+            .where('courseType', isEqualTo: classType)
+            .limit(
+                5) // Assuming each classType will only have one representative course
+            .get();
+
+        for (var courseDoc in courseSnapshot.docs) {
+          String courseId = courseDoc.id;
+          String courseName = courseDoc['courseName'] ?? 'Unknown Course';
+          String imageUrl =
+              "category_default.png"; // Default image if not found
+
+          // Handle imageUrl based on course type (added default image handling)
+          if (classType != null && classType.isNotEmpty) {
+            String formattedClassType =
+                classType.toLowerCase().replaceAll(' ', '_');
+            imageUrl = "$formattedClassType.png";
+          }
+
+          TopCourseDTO topCourse = TopCourseDTO(
+            courseId: courseId,
+            courseName: courseName,
+            imageUrl: imageUrl,
+            numberOfClassInstances: classTypeBookingCount[classType]!,
+            classType: classType,
+          );
+
+          topCourses.add(topCourse);
+        }
       }
 
       return topCourses;
@@ -97,6 +149,22 @@ class CourseRepository {
     } catch (e) {
       print('Error fetching course by ID: $e');
       return Course.empty();
+    }
+  }
+
+  Future<List<Course>> fetchCourseByClassType(String classType) async {
+    try {
+      QuerySnapshot snapshot = await _firestore
+          .collection('courses')
+          .where('courseType', isEqualTo: classType)
+          .get();
+      return snapshot.docs
+          .map((doc) =>
+              Course.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+          .toList();
+    } catch (e) {
+      print('Error fetching courses by class type: $e');
+      return [];
     }
   }
 }

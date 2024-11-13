@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:yinyoga_customer/ui/screens/booking_cart.dart';
 import 'package:yinyoga_customer/ui/screens/homepage_screen.dart';
+import 'package:yinyoga_customer/ui/screens/welcome_screen.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -30,6 +32,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: HomepageScreen(),
+      // home: BookingCartScreen(),
     );
   }
 }

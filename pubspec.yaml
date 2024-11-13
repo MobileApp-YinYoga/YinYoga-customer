@@ -32,6 +32,7 @@ dependencies:
     sdk: flutter
 
   intl: ^0.17.0
+  http: ^0.13.3
   cloud_firestore: ^5.4.4
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -65,13 +66,15 @@ flutter:
   #   - images/a_dot_ham.jpeg
   assets:
     - assets/images/courses/  
-    - assets/images/background/welcome_image.png
     - assets/images/user.jpg
     - assets/icons/
     - assets/icons/navigations/
     - assets/icons/utils/
     - assets/images/background/homepage.png
     - assets/images/instances/
+    - assets/images/empty/
+    - assets/images/background/
+    - assets/images/categories/
 
   fonts:
     - family: Poppins

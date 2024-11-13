@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // Thêm Firestore
-import 'package:yinyoga_customer/services/otp_service.dart';
-import 'otp_verification_screen.dart';
+import 'package:yinyoga_customer/ui/widgets/otp_verification_screen.dart';
+import 'package:yinyoga_customer/utils/otpService.dart'; // Nhập MailgunService từ utils
 
 class EmailInputScreen extends StatefulWidget {
   @override
@@ -10,87 +9,161 @@ class EmailInputScreen extends StatefulWidget {
 
 class _EmailInputScreenState extends State<EmailInputScreen> {
   final TextEditingController _emailController = TextEditingController();
+  String _errorMessage = ''; // Lưu trữ thông báo lỗi
+  bool _isEmailValid = true; // Kiểm tra tính hợp lệ của email
+  bool _isLoading = false; // Kiểm tra trạng thái loading
+  bool _isOtpSent = false; // Kiểm tra xem OTP đã được gửi chưa
 
   Future<void> _checkEmailAndSendOtp() async {
     final String email = _emailController.text.trim();
 
-    // Kiểm tra email trong Firestore
-    bool emailExists = await _checkEmailExists(email);
-    if (emailExists) {
-      // Email tồn tại - không cần xác thực OTP
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Email already exists'),
-          content: Text('This email is already registered. You can proceed to login.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('OK'),
-            ),
-          ],
-        ),
-      );
-    } else {
-      // Tạo mã OTP ngẫu nhiên
-      String otp = OtpService().generateOtp();
-      print('OTP Generated: $otp');
+    // Kiểm tra email hợp lệ
+    if (!_isValidEmail(email)) {
+      setState(() {
+        _errorMessage = 'Please enter a valid email address.';
+        _isEmailValid = false;
+        _isOtpSent = false;
+      });
+      return; // Nếu email không hợp lệ thì dừng lại
+    }
 
-      // Điều hướng sang màn hình xác thực OTP
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => OtpVerificationScreen(email: email, otp: otp),
-        ),
-      );
+    // Hiển thị loading khi đang gửi OTP
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Gửi OTP qua email
+      String _otp = await MailgunService().sendEmail(email);
+      if (_otp.isEmpty == false) {
+        setState(() {
+          _isLoading = false;
+          _isOtpSent = true; // OTP đã được gửi
+        });
+
+        // Gửi mã OTP qua email
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => OtpVerificationScreen(
+              email: email,
+              otp: _otp,
+            ),
+          ),
+        );
+      } else {
+        // Hiển thị thông báo lỗi nếu không thể gửi OTP
+        setState(() {
+          _isLoading = false;
+          _errorMessage = 'Failed to send OTP. Please try again later.';
+          _isEmailValid = false;
+          _isOtpSent = false;
+        });
+      }
+    } catch (e) {
+      // Nếu có lỗi khi gửi OTP
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Failed to send OTP. Please try again later.';
+        _isEmailValid = false;
+        _isOtpSent = false;
+      });
     }
   }
 
-  Future<bool> _checkEmailExists(String email) async {
-    try {
-      // Truy vấn Firestore để kiểm tra xem email có tồn tại trong collection 'users' không
-      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-          .collection('users') // Thay 'users' bằng tên collection của bạn
-          .where('email', isEqualTo: email)
-          .get();
-
-      // Kiểm tra nếu có kết quả
-      if (querySnapshot.docs.isNotEmpty) {
-        print('Email already exists: $email');
-        return true; // Email tồn tại
-      } else {
-        print('Email does not exist: $email');
-        return false; // Email không tồn tại
-      }
-    } catch (e) {
-      print('Error checking email existence: $e');
-      // Xử lý lỗi (nếu cần), có thể hiển thị thông báo lỗi cho người dùng
-      return false;
-    }
+  bool _isValidEmail(String email) {
+    // Kiểm tra tính hợp lệ của email
+    final regex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+    return regex.hasMatch(email);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Enter your Email')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(
-              controller: _emailController,
-              decoration: InputDecoration(
-                labelText: 'Email',
-                border: OutlineInputBorder(),
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/background/welcome_image_2.png'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Tiêu đề chào mừng
+              const Text(
+                'WELCOME TO UNIVERSAL YOGA',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontFamily: 'Poppins',
+                  color: Color(0xFF6D674B),
+                ),
               ),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _checkEmailAndSendOtp,
-              child: Text('Continue'),
-            ),
-          ],
+              const SizedBox(height: 10),
+              const Text(
+                'Join us to improve your mental and physical well-being through yoga. Start by entering your details below to begin your journey with us!',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w500,
+                  color: Color(0xFF6D674B),
+                ),
+              ),
+              const SizedBox(height: 30),
+              // Trường nhập email
+              TextField(
+                controller: _emailController,
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  labelStyle: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Poppins',
+                    color: Color(0xFF6D674B),
+                  ),
+                  hintText: 'Enter your email',
+                  hintStyle: const TextStyle(color: Colors.grey),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  errorText: _isEmailValid ? null : _errorMessage,
+                  errorStyle: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.red,
+                  ),
+                ),
+                keyboardType: TextInputType.emailAddress,
+              ),
+              const SizedBox(height: 20),
+              // Nút bấm
+              ElevatedButton(
+                onPressed: _isOtpSent || _isLoading ? null : _checkEmailAndSendOtp,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF6D674B),
+                  foregroundColor: Colors.white, // Text color
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  textStyle: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Poppins',
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                child: _isLoading
+                    ? const CircularProgressIndicator(
+                        color: Colors.white,
+                      ) // Hiển thị loading khi gửi OTP
+                    : const Text('Get Started'),
+              ),
+            ],
+          ),
         ),
       ),
     );

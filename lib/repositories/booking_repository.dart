@@ -1,48 +1,26 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:yinyoga_customer/models/booking_detail.dart';
+import 'package:yinyoga_customer/models/booking_model.dart';
 
 class BookingRepository {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
-  Future<List<Map<String, dynamic>>> fetchUserBookings(String userEmail) async {
-    try {
-      QuerySnapshot snapshot = await _firestore
-          .collection('bookings')
-          .where('email', isEqualTo: userEmail)
-          .get();
-
-      return snapshot.docs
-          .map((doc) => {
-                ...doc.data() as Map<String, dynamic>,
-                'id': doc.id // Adding document ID if needed
-              })
-          .toList();
-    } catch (e) {
-      print('Error fetching bookings: $e');
-      return [];
-    }
+  // Replace with your database connection logic (e.g., Firebase, SQLite, etc.)
+  
+  Future<String> createBooking(Booking booking) async {
+    // Example logic for creating a booking and returning its ID
+    // Replace with actual database call logic
+    // This is a placeholder for demonstration
+    String generatedBookingId = "unique_booking_id"; // Generate or get from DB
+    // Add booking logic here
+    return generatedBookingId;
   }
 
-  Future<void> addBooking(Map<String, dynamic> bookingData) async {
-    try {
-      await _firestore.collection('bookings').add(bookingData);
-    } catch (e) {
-      print('Error adding booking: $e');
-    }
+  Future<void> createBookingDetail(BookingDetail detail) async {
+    // Example logic for creating a booking detail
+    // Replace with actual database call logic
   }
 
-  Future<void> updateBooking(String bookingId, Map<String, dynamic> updatedData) async {
-    try {
-      await _firestore.collection('bookings').doc(bookingId).update(updatedData);
-    } catch (e) {
-      print('Error updating booking: $e');
-    }
-  }
-
-  Future<void> deleteBooking(String bookingId) async {
-    try {
-      await _firestore.collection('bookings').doc(bookingId).delete();
-    } catch (e) {
-      print('Error deleting booking: $e');
-    }
+  Future<List<Booking>> getBookingsByEmail(String email) async {
+    // Example logic for fetching bookings by email
+    // Replace with actual database call logic
+    return []; // Return list of bookings
   }
 }

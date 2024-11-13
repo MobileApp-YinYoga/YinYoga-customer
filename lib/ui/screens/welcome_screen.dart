@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:yinyoga_customer/ui/widgets/email_input_screen.dart';
 import 'homepage_screen.dart'; // Thay bằng file của màn hình tiếp theo
 
 class WelcomeScreen extends StatelessWidget {
@@ -10,7 +11,7 @@ class WelcomeScreen extends StatelessWidget {
           // Hình ảnh nền
           Positioned.fill(
             child: Image.asset(
-              'assets/images/welcome_image.png', // Đường dẫn tới ảnh
+              'assets/images/background/welcome_image.png', // Đường dẫn tới ảnh
               fit: BoxFit.cover, // Đảm bảo ảnh phủ đầy màn hình
             ),
           ),
@@ -26,7 +27,7 @@ class WelcomeScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => HomepageScreen()),
+                            builder: (context) => EmailInputScreen()),
                       );
                     },
                     style: ElevatedButton.styleFrom(
@@ -35,13 +36,13 @@ class WelcomeScreen extends StatelessWidget {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30.0),
                       ),
-                      padding: EdgeInsets.symmetric(
+                      padding: const EdgeInsets.symmetric(
                           horizontal: 24.0, vertical: 12.0),
                     ),
-                    child: Text('Get Started'),
+                    child: const Text('Get Started'),
                   ),
                 ),
-                SizedBox(height: 50), // Khoảng cách giữa nút và cuối màn hình
+                const SizedBox(height: 50), // Khoảng cách giữa nút và cuối màn hình
               ],
             ),
           ),

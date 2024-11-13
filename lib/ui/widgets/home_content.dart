@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:yinyoga_customer/dto/topCourseDTO.dart';
 import 'package:yinyoga_customer/models/course_model.dart';
 import 'package:yinyoga_customer/services/course_service.dart';
+import 'package:yinyoga_customer/ui/screens/all_courses_screen.dart';
 import 'package:yinyoga_customer/ui/screens/course_detail_screen.dart';
 
 class HomeContent extends StatefulWidget {
@@ -133,7 +134,7 @@ class _HomeContentState extends State<HomeContent> {
                             children: courses.map((course) {
                               return _buildCourseCard(
                                 course.courseId,
-                                course.courseName,
+                                course.classType,
                                 course.imageUrl,
                                 course.numberOfClassInstances > 1
                                     ? '${course.numberOfClassInstances} classes'
@@ -260,7 +261,8 @@ class _HomeContentState extends State<HomeContent> {
                     ? Column(
                         children: _filteredCourses.map((course) {
                           return FutureBuilder<Course>(
-                            future: _courseService.getCourseById(course.courseId), // Fetch course asynchronously
+                            future: _courseService.getCourseById(
+                                course.courseId), // Fetch course asynchronously
                             builder: (context, snapshot) {
                               if (snapshot.connectionState ==
                                   ConnectionState.waiting) {
@@ -311,78 +313,103 @@ class _HomeContentState extends State<HomeContent> {
   }
 
   Widget _buildCourseCard(
-      String courseId, String title, String imagePath, String classes) {
-    return Container(
-      margin: const EdgeInsets.only(right: 16.0),
-      width: 270,
-      height: 240,
-      child: GestureDetector(
-        onTap: () {
-          Navigator.of(context)
-              .pushNamed('/course-detail', arguments: courseId);
-        },
-        child: Card(
-          elevation: 3,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Stack(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Image.asset(
-                  'assets/images/courses/$imagePath',
-                  height: 240,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              Positioned(
-                top: 10,
-                left: 10,
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.8),
-                    borderRadius: BorderRadius.circular(12),
+      String courseId, String classType, String imagePath, String numberOfClasses) {
+    return FutureBuilder<Course>(
+      future: _courseService
+          .getCourseById(courseId), // Fetch the course data asynchronously
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          // While waiting for data, show a loading indicator
+          return const CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          // If there's an error fetching the course, display an error message
+          return Text('Error: ${snapshot.error}');
+        } else if (!snapshot.hasData) {
+          // If no course data is returned, display a placeholder
+          return const Text('Course not available');
+        } else {
+          // Once the course data is fetched, build the card
+          final course = snapshot.data!;
+
+          return Container(
+            margin: const EdgeInsets.only(right: 16.0),
+            width: 270,
+            height: 240,
+            child: GestureDetector(
+              onTap: () {
+                print("classType: $classType");
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AllCoursesScreen(title: classType),
                   ),
-                  child: Text(
-                    classes,
-                    style: const TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w100,
-                      fontFamily: 'Poppins',
-                      color: Color(0xFF6D674B),
-                    ),
-                  ),
+                );
+              },
+              child: Card(
+                elevation: 3,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
                 ),
-              ),
-              Positioned(
-                bottom: 10,
-                left: 10,
-                right: 10,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 6),
-                  child: Center(
-                    child: Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Poppins',
-                        color: Colors.white,
+                child: Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: Image.asset(
+                        'assets/images/categories/$imagePath',
+                        height: 240,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
+                    Positioned(
+                      top: 10,
+                      left: 10,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 2, vertical: 1),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.8),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          numberOfClasses,
+                          style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w100,
+                            fontFamily: 'Poppins',
+                            color: Color(0xFF6D674B),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 10,
+                      left: 10,
+                      right: 10,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 6),
+                        child: Center(
+                          child: Text(
+                            classType,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'Poppins',
+                              color: Colors.white,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
+            ),
+          );
+        }
+      },
     );
   }
 

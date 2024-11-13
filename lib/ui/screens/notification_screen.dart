@@ -1,7 +1,10 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
-import '../../services/notification_service.dart';
-import '../../models/notification_model.dart';
-import 'package:intl/intl.dart';
+import 'package:yinyoga_customer/models/cart_model.dart';
+import 'package:yinyoga_customer/models/notification_model.dart';
+import 'package:yinyoga_customer/services/notification_service.dart';
+import 'package:yinyoga_customer/ui/screens/booking_screen.dart';
 
 class NotificationsScreen extends StatefulWidget {
   @override
@@ -10,8 +13,8 @@ class NotificationsScreen extends StatefulWidget {
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
   final NotificationService _notificationService = NotificationService();
-  List<NotificationModel> _newNotifications = [];
-  List<NotificationModel> _oldNotifications = [];
+  List<NotificationModel> newNotifications = [];
+  List<NotificationModel> oldNotifications = [];
   bool _isLoading = true;
 
   @override
@@ -22,30 +25,36 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   Future<void> _fetchNotifications() async {
     try {
-      List<NotificationModel> notifications = await _notificationService.getNotifications();
+      // Fetch all notifications from the service
+      List<NotificationModel> notifications =
+          await _notificationService.getNotifications();
+
       DateTime today = DateTime.now();
+
       setState(() {
-        _newNotifications = notifications.where((notification) {
-          DateTime notificationDate = DateTime.parse(notification.time);
-          return notificationDate.year == today.year &&
-              notificationDate.month == today.month &&
-              notificationDate.day == today.day;
+        newNotifications = notifications.where((notif) {
+          // Check if the notification is from today
+          DateTime createdDate = DateTime.parse(notif.createdDate);
+          return createdDate.year == today.year &&
+              createdDate.month == today.month &&
+              createdDate.day == today.day;
         }).toList();
-        _oldNotifications = notifications.where((notification) {
-          DateTime notificationDate = DateTime.parse(notification.time);
-          return !(notificationDate.year == today.year &&
-              notificationDate.month == today.month &&
-              notificationDate.day == today.day);
+
+        oldNotifications = notifications.where((notif) {
+          // Check if the notification is not from today
+          DateTime createdDate = DateTime.parse(notif.createdDate);
+          return !(createdDate.year == today.year &&
+              createdDate.month == today.month &&
+              createdDate.day == today.day);
         }).toList();
+
         _isLoading = false;
       });
     } catch (e) {
+      print('Error fetching notifications: $e');
       setState(() {
         _isLoading = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to fetch notifications: $e')),
-      );
     }
   }
 
@@ -53,121 +62,149 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Notifications'),
+        title: const Text(
+          'Notifications',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w600,
+            fontFamily: 'Poppins',
+            color: Color(0xFF6D674B),
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: const Color.fromARGB(255, 232, 232, 232),
+        elevation: 4,
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _buildNotificationsContent(),
-    );
-  }
-
-  Widget _buildNotificationsContent() {
-    return ListView(
-      padding: const EdgeInsets.all(16.0),
-      children: [
-        if (_newNotifications.isNotEmpty)
-          const Padding(
-            padding: EdgeInsets.only(bottom: 8.0),
-            child: Text('New', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          ),
-        ..._newNotifications.map((notification) => _buildNotificationCard(notification)).toList(),
-        if (_oldNotifications.isNotEmpty)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 8.0),
-            child: Text('Before', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          ),
-        ..._oldNotifications.map((notification) => _buildNotificationCard(notification)).toList(),
-      ],
-    );
-  }
-
-  Widget _buildNotificationCard(NotificationModel notification) {
-    return Dismissible(
-      key: Key(notification.id!),
-      direction: DismissDirection.endToStart,
-      background: Container(
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        color: Colors.red,
-        child: const Icon(Icons.delete, color: Colors.white),
-      ),
-      confirmDismiss: (direction) async {
-        return await showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Confirm Delete'),
-            content: const Text('Are you sure you want to delete this notification?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                child: const Text('Delete'),
-              ),
-            ],
-          ),
-        );
-      },
-      onDismissed: (direction) async {
-        await _notificationService.deleteNotification(notification.id!);
-        setState(() {
-          _newNotifications.remove(notification);
-          _oldNotifications.remove(notification);
-        });
-      },
-      child: Card(
-        color: notification.isRead ? Colors.white : const Color(0x4D6D674B), // 30% opacity of 0xFF6D674B
-        margin: const EdgeInsets.symmetric(vertical: 8.0),
-        child: ListTile(
-          leading: Icon(
-            Icons.notifications,
-            color: notification.isRead ? Colors.grey : Colors.blue,
-          ),
-          title: Text(notification.title),
-          subtitle: Column(
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (notification.description != null)
-                Text(notification.description!),
-              Text(
-                DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.parse(notification.time)),
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
-              ),
+              if (_isLoading) const Center(child: CircularProgressIndicator()),
+
+              // New notifications section
+              if (newNotifications.isNotEmpty)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'New',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Poppins',
+                        color: Color(0xFF6D674B),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ...newNotifications
+                        .map((notif) => _buildNotificationCard(notif, context)),
+                  ],
+                ),
+              // Empty state when no new notifications
+              if (newNotifications.isEmpty && !_isLoading)
+                // Old notifications section
+                if (oldNotifications.isNotEmpty)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Before',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Poppins',
+                          color: Color(0xFF6D674B),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      ...oldNotifications.map(
+                          (notif) => _buildNotificationCard(notif, context)),
+                    ],
+                  ),
+              // Empty state when no old notifications
+              if (oldNotifications.isEmpty && !_isLoading)
+                const Center(child: Text('No old notifications')),
             ],
           ),
-          trailing: IconButton(
-            icon: Icon(notification.isRead ? Icons.mark_chat_read : Icons.mark_chat_unread),
-            onPressed: () {
-              _toggleReadStatus(notification);
-            },
-          ),
-          onTap: () {
-            _toggleReadStatus(notification);
-          },
         ),
       ),
     );
   }
 
-  Future<void> _toggleReadStatus(NotificationModel notification) async {
-    try {
-      final updatedNotification = notification.copyWith(isRead: !notification.isRead);
-      await _notificationService.markAsRead(notification.id!);
-      setState(() {
-        if (_newNotifications.contains(notification)) {
-          _newNotifications[_newNotifications.indexWhere((n) => n.id == notification.id)] =
-              updatedNotification;
-        } else {
-          _oldNotifications[_oldNotifications.indexWhere((n) => n.id == notification.id)] =
-              updatedNotification;
-        }
-      });
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to update notification status: $e')),
-      );
-    }
+  // Builds a notification card widget
+  Widget _buildNotificationCard(NotificationModel notif, BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      color: Colors.white,
+      elevation: 3,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: const BorderSide(
+          color: Colors.transparent, // Add border when unread
+          width: 1,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ListTile(
+          leading: Image.asset(
+            notif.isRead
+                ? 'assets/icons/utils/notification_read.png'
+                : 'assets/icons/utils/notification_unread.png',
+            width: 30,
+            height: 30,
+          ),
+          title: Text(
+            notif.title,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Poppins',
+              color: Color(0xFF6D674B),
+            ),
+          ),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                notif.description,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontFamily: 'Poppins',
+                  color: Color(0xFF6D674B),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Last updated: ${notif.time}',
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontFamily: 'Poppins',
+                  color: Color(0xFF7B7B7B),
+                ),
+              ),
+            ],
+          ),
+          onTap: () {
+            // Update isRead status and navigate to the booking page
+            if (!notif.isRead) {
+              _notificationService.markAsRead(notif.id!);
+            } else {
+              _notificationService.markAsUnread(notif.id!);
+            }
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => BookingScreen(
+                  userEmail: 'trannq2003@gmail.com',
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
   }
 }

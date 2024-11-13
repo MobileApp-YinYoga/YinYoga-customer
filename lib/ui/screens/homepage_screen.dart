@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:yinyoga_customer/models/course_model.dart';
+import 'package:yinyoga_customer/ui/screens/booking_cart.dart';
 import 'package:yinyoga_customer/ui/screens/booking_screen.dart';
 import 'package:yinyoga_customer/ui/screens/course_detail_screen.dart';
 import 'package:yinyoga_customer/ui/screens/notification_screen.dart';
@@ -21,7 +22,7 @@ class _HomepageScreenState extends State<HomepageScreen> {
 
   // dữ liệu mẫu cho 1 course
   final List<Widget> _pages = [
-    AllCoursesScreen(),
+    AllCoursesScreen(title: 'All courses'),
     BookingScreen(userEmail: 'trannq2003@gmail.com'),
     HomeContent(),
     NotificationsScreen(),
@@ -37,6 +38,9 @@ class _HomepageScreenState extends State<HomepageScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: _selectedIndex != 2
+          ? CustomHeader(title: 'Home page')
+          : null,
       body: _pages[_selectedIndex],
       bottomNavigationBar: CustomFooter(
         currentIndex: _selectedIndex,
