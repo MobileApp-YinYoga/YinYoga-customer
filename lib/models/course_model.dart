@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 class Course {
   final String? id;
   final String courseName;
@@ -71,4 +74,9 @@ class Course {
         courseType = '',
         description = '',
         createdAt = DateTime.now();
+
+
+  // Convert base64 to Uint8List for displaying image
+  Uint8List get imageBytes => base64Decode(imageUrl);
+
 }

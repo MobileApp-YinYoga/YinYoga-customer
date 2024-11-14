@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:yinyoga_customer/models/class_instance_model.dart';
@@ -29,11 +32,13 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
   void _fetchClassInstances() {
     _classInstancesFuture =
         _classInstances.getInstancesByCourseId(widget.course.id!);
-    _classInstancesFuture.then((value) {
-      print('Fetched Class Instances: $value');
-    }).catchError((error) {
-      print('Error fetching class instances: $error');
-    });
+  }
+
+  Uint8List _base64Decode(String source) {
+    String cleanBase64 = source.contains(',') ? source.split(',').last : source;
+    cleanBase64 = cleanBase64.replaceAll(RegExp(r'\s+'), '');
+    Uint8List imageBytes = base64Decode(cleanBase64);
+    return imageBytes;
   }
 
   @override
@@ -70,12 +75,19 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
               // Image Banner
               ClipRRect(
                 borderRadius: BorderRadius.circular(16),
-                child: Image.asset(
-                  'assets/images/courses/${widget.course.imageUrl}',
-                  height: 200,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
+                child: widget.course.imageUrl.isNotEmpty
+                  ? Image.memory(
+                      _base64Decode(widget.course.imageUrl),
+                      height: 150,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    )
+                  : Image.asset(
+                      'assets/images/courses/default_image.png', // Default image when base64 string is empty
+                      height: 150,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
               ),
               const SizedBox(height: 16),
               Text(
@@ -166,22 +178,13 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                         return const Center(child: CircularProgressIndicator());
                       } else if (snapshot.hasError) {
                         return Center(child: Text('Error: ${snapshot.error}'));
-                      } else if (!snapshot.hasData ||
-                          snapshot.data == null ||
-                          snapshot.data!.isEmpty) {
+                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                         return const Center(
                             child: Text('No class instances available.'));
                       } else {
                         List<ClassInstance> classInstances = snapshot.data!;
-                        print('Fetched instances: ${classInstances.length}');
-
                         return Column(
                           children: classInstances.map((classInstance) {
-                            if (classInstance.id == null ||
-                                classInstance.dates == null) {
-                              return const Center(
-                                  child: Text('Invalid class instance data.'));
-                            }
                             return _buildClassInstance(context, classInstance);
                           }).toList(),
                         );
@@ -199,6 +202,8 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
 
   Widget _buildClassInstance(
       BuildContext context, ClassInstance classInstance) {
+    // Kiểm tra null trước khi sử dụng
+    final instanceId = classInstance.id ?? 'Unknown ID';
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       decoration: BoxDecoration(
@@ -228,52 +233,9 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
             top: 16,
             right: 16,
             child: IconButton(
-              icon: const Icon(Icons.favorite_border, color: Colors.white),
+              icon: const Icon(Icons.add_shopping_cart, color: Colors.white),
               onPressed: () {
                 // Handle favorite action
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Text(
-                  classInstance.id!,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Poppins',
-                    color: Colors.white,
-                  ),
-                ),
-                Text(
-                  'Date: ${DateFormat('MMMM d, yyyy').format(classInstance.dates)}',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontFamily: 'Poppins',
-                    color: Colors.white70,
-                  ),
-                ),
-                Text(
-                  'Teacher: ${classInstance.teacher}',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontFamily: 'Poppins',
-                    color: Colors.white70,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Positioned(
-            bottom: 16,
-            right: 16,
-            child: ElevatedButton(
-              onPressed: () {
-                // Handle booking action
                 try {
                   _cartService
                       .addToCart(classInstance.id!, 'trannq2003@gmail.com')
@@ -315,6 +277,49 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                 } catch (e) {
                   debugPrint('Error: $e');
                 }
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Text(
+                  instanceId!,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Poppins',
+                    color: Colors.white,
+                  ),
+                ),
+                Text(
+                  'Date: ${DateFormat('MMMM d, yyyy').format(classInstance.dates)}',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontFamily: 'Poppins',
+                    color: Colors.white70,
+                  ),
+                ),
+                Text(
+                  'Teacher: ${classInstance.teacher}',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontFamily: 'Poppins',
+                    color: Colors.white70,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Positioned(
+            bottom: 16,
+            right: 16,
+            child: ElevatedButton(
+              onPressed: () {
+                // Handle booking action
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white.withOpacity(0.8),

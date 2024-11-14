@@ -110,6 +110,11 @@ class CartRepository {
   // Delete a cart by bookingId
   Future<void> deleteCartByInstanceId(String instanceId, String email) async {
     try {
+
+      //print email và instanceId để kiểm tra
+      print('email: $email');
+      print('instanceId: $instanceId');
+
       // Delete the cart by instanceId and email
       QuerySnapshot snapshot = await _firestore
           .collection('carts')
@@ -120,6 +125,7 @@ class CartRepository {
       // Loop through each document and delete
       for (var doc in snapshot.docs) {
         await doc.reference.delete();
+        print("Cart deleted successfully.");
       }
     } catch (e) {
       print('Error deleting booking: $e');

@@ -1,4 +1,9 @@
+import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:yinyoga_customer/dto/topCourseDTO.dart';
 import '../models/course_model.dart';
 
@@ -14,13 +19,38 @@ class CourseRepository {
     }
   }
 
+  Future<String> saveImageToFile(Uint8List imageBytes, String fileName) async {
+    final directory = await getApplicationDocumentsDirectory();
+    print(directory.path);
+    final imagePath = '${directory.path}/$fileName';
+    final imageFile = File(imagePath);
+    await imageFile.writeAsBytes(imageBytes);
+    return imagePath;
+  }
+
   Future<List<Course>> fetchAllCourses() async {
     try {
       QuerySnapshot snapshot = await _firestore.collection('courses').get();
-      return snapshot.docs
-          .map((doc) =>
-              Course.fromMap(doc.data() as Map<String, dynamic>, doc.id))
-          .toList();
+
+      List<Course> courses = snapshot.docs.map((doc) {
+        // Tạo đối tượng Course từ dữ liệu Firestore
+        final course =
+            Course.fromMap(doc.data() as Map<String, dynamic>, doc.id);
+
+        // Nếu có dữ liệu base64, giải mã và lưu hình ảnh
+        // if (course.imageUrl.isNotEmpty) {
+        //   String cleanBase64 = course.imageUrl.contains(',')
+        //       ? course.imageUrl.split(',').last
+        //       : course.imageUrl;
+        //   cleanBase64 = cleanBase64.replaceAll(RegExp(r'\s+'), '');
+        //   Uint8List imageBytes = base64Decode(cleanBase64);
+        //   print(imageBytes);
+        // }
+
+        return course;
+      }).toList();
+
+      return courses;
     } catch (e) {
       print('Error fetching courses: $e');
       return [];
@@ -51,7 +81,7 @@ class CourseRepository {
             .get();
 
         for (var classInstanceDoc in classInstanceSnapshot.docs) {
-          String classInstanceId = classInstanceDoc['instanceId'];
+          String classInstanceId = classInstanceDoc.id;
 
           // Count bookings for this class instance
           QuerySnapshot bookingDetailSnapshot = await _firestore
@@ -109,6 +139,10 @@ class CourseRepository {
             numberOfClassInstances: classTypeBookingCount[classType]!,
             classType: classType,
           );
+
+          //print(topCourse);
+          print(
+              "Course: $courseName - $courseId, Image: $imageUrl, Type: $classType, Count: ${classTypeBookingCount[classType]}");
 
           topCourses.add(topCourse);
         }

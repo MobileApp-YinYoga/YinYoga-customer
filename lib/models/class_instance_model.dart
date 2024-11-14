@@ -15,6 +15,7 @@ class ClassInstance {
 
   Map<String, dynamic> toMap() {
     return {
+      'id': id,
       'courseId': courseId,
       'dates': dates.toIso8601String(),
       'teacher': teacher,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:yinyoga_customer/models/cart_model.dart';
 import 'package:yinyoga_customer/ui/screens/booking_cart.dart';
 import 'package:yinyoga_customer/ui/screens/welcome_screen.dart';
+import 'package:yinyoga_customer/utils/sharedPreferences.dart';
 
 class CustomHeader extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -49,12 +50,12 @@ class CustomHeader extends StatelessWidget implements PreferredSizeWidget {
                 children: [
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => WelcomeScreen(),
-                        ),
-                      );
+                      Sharedpreferences.logout().then((value) => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => WelcomeScreen(),
+                            ),
+                          ));
                     },
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
@@ -86,7 +87,7 @@ class CustomHeader extends StatelessWidget implements PreferredSizeWidget {
                       shape: const CircleBorder(),
                     ),
                     child: const Icon(
-                      Icons.calendar_today,
+                      Icons.add_shopping_cart,
                       color: Colors.white,
                     ),
                   ),

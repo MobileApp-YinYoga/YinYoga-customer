@@ -8,6 +8,8 @@ class NotificationRepository {
     try {
       QuerySnapshot snapshot =
           await _firestore.collection('notifications').get();
+
+      
       return snapshot.docs.map((doc) {
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
         data['id'] = doc.id; // Use doc.id directly as a string

@@ -1,11 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:yinyoga_customer/dto/bookingDTO.dart';
+import 'package:yinyoga_customer/services/booking_service.dart';
 
-class BookingScreen extends StatelessWidget {
-  final String userEmail; // Current user's email to fetch booking data
+class BookingScreen extends StatefulWidget {
+  final String userEmail;
+
+  BookingScreen({required this.userEmail});
+
+  @override
+  _BookingScreenState createState() => _BookingScreenState();
+}
+
+class _BookingScreenState extends State<BookingScreen> {
   final BookingService _bookingService =
       BookingService(); // Initialize BookingService
+  late Future<List<BookingDTO>> _bookingItemsFuture;
+  bool _isExpanded = false;
+  
+  String userEmail = "trannq2003@gmail.com"; // Track if details are expanded
 
-  BookingScreen({super.key, required this.userEmail});
+  @override
+  void initState() {
+    super.initState();
+    _bookingItemsFuture = _bookingService.fetchBookingsByEmail(userEmail);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,124 +42,246 @@ class BookingScreen extends StatelessWidget {
         backgroundColor: const Color.fromARGB(255, 232, 232, 232),
         elevation: 4,
       ),
-    //   body: FutureBuilder<List<Map<String, dynamic>>>(
-    //     future: _bookingService
-    //         .getUserBookings(userEmail), // Fetch bookings from the service
-    //     builder: (context, snapshot) {
-    //       if (snapshot.connectionState == ConnectionState.waiting) {
-    //         // Display a loading indicator while fetching data
-    //         return const Center(child: CircularProgressIndicator());
-    //       } else if (snapshot.hasError) {
-    //         // Handle any errors during data fetching
-    //         return Center(
-    //           child: Column(
-    //             mainAxisAlignment: MainAxisAlignment.center,
-    //             children: [
-    //               const Icon(Icons.error_outline, size: 80, color: Colors.red),
-    //               const SizedBox(height: 20),
-    //               Text(
-    //                 'Error: ${snapshot.error}',
-    //                 textAlign: TextAlign.center,
-    //                 style: const TextStyle(fontSize: 16),
-    //               ),
-    //             ],
-    //           ),
-    //         );
-    //       } else if (snapshot.hasData && snapshot.data!.isEmpty) {
-    //         // Display when no booking data is available
-    //         return Center(
-    //           child: Column(
-    //             mainAxisAlignment: MainAxisAlignment.center,
-    //             children: [
-    //               const Icon(Icons.notifications_off,
-    //                   size: 100, color: Colors.grey),
-    //               const SizedBox(height: 20),
-    //               const Text(
-    //                 'No Courses',
-    //                 style: TextStyle(
-    //                     fontSize: 18,
-    //                     fontWeight: FontWeight.bold,
-    //                     fontFamily: 'Poppins'),
-    //               ),
-    //               const SizedBox(height: 10),
-    //               const Text(
-    //                 'Looks like you have not enrolled for any course yet.',
-    //                 textAlign: TextAlign.center,
-    //                 style: TextStyle(fontSize: 16, fontFamily: 'Poppins'),
-    //               ),
-    //               const SizedBox(height: 20),
-    //               ElevatedButton(
-    //                 onPressed: () {
-    //                   // Navigate to all courses page
-    //                   Navigator.pushNamed(context, '/all_courses');
-    //                 },
-    //                 child: const Text('Explore Courses'),
-    //               ),
-    //             ],
-    //           ),
-    //         );
-    //       } else if (snapshot.hasData) {
-    //         // Display the list of bookings
-    //         List<Map<String, dynamic>> bookings = snapshot.data!;
-    //         return ListView.builder(
-    //           itemCount: bookings.length,
-    //           itemBuilder: (context, index) {
-    //             final booking = bookings[index];
-    //             return Card(
-    //               margin:
-    //                   const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-    //               shape: RoundedRectangleBorder(
-    //                   borderRadius: BorderRadius.circular(12)),
-    //               elevation: 3,
-    //               child: ListTile(
-    //                 leading: CircleAvatar(
-    //                   backgroundColor: Colors.blueGrey[100],
-    //                   child: Text(
-    //                     booking['instanceId'].substring(0, 2).toUpperCase(),
-    //                     style: const TextStyle(
-    //                         color: Color(0xFF6D674B),
-    //                         fontWeight: FontWeight.bold),
-    //                   ),
-    //                 ),
-    //                 title: Text(
-    //                   'Instance ID: ${booking['instanceId']}',
-    //                   style: const TextStyle(
-    //                       fontFamily: 'Poppins', fontWeight: FontWeight.w600),
-    //                 ),
-    //                 subtitle: Column(
-    //                   crossAxisAlignment: CrossAxisAlignment.start,
-    //                   children: [
-    //                     Text(
-    //                       'Status: ${booking['status']}',
-    //                       style: const TextStyle(fontFamily: 'Poppins'),
-    //                     ),
-    //                     Text(
-    //                       'Date: ${booking['bookingDate']}',
-    //                       style: const TextStyle(
-    //                           color: Colors.grey, fontFamily: 'Poppins'),
-    //                     ),
-    //                   ],
-    //                 ),
-    //                 trailing: IconButton(
-    //                   icon: const Icon(Icons.arrow_forward_ios,
-    //                       color: Colors.grey),
-    //                   onPressed: () {
-    //                     // Handle navigation or action on booking
-    //                   },
-    //                 ),
-    //               ),
-    //             );
-    //           },
-    //         );
-    //       } else {
-    //         // Display if no data is available (fallback case)
-    //         return const Center(child: Text('No data available'));
-    //       }
-    //     },
-    //   ),
+      body: FutureBuilder<List<BookingDTO>>(
+        future: _bookingItemsFuture, // Fetch bookings from the service
+        builder: (context, snapshot) {
+          // Check the connection state
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            // Display a loading indicator while fetching data
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            // Handle any errors during data fetching
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, size: 80, color: Colors.red),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Error: ${snapshot.error}',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                ],
+              ),
+            );
+          } else if (!snapshot.hasData && snapshot.data!.isEmpty) {
+            // Display when no booking data is available
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.notifications_off,
+                      size: 100, color: Colors.grey),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'No Courses',
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Poppins'),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Looks like you have not enrolled for any course yet.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 16, fontFamily: 'Poppins'),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Navigate to all courses page
+                      Navigator.pushNamed(context, '/all_courses');
+                    },
+                    child: const Text('Explore Courses'),
+                  ),
+                ],
+              ),
+            );
+          } else if (snapshot.hasData) {
+            List<BookingDTO> bookings = snapshot.data!;
+            return ListView.builder(
+              itemCount: bookings.length,
+              itemBuilder: (context, index) {
+                final booking = bookings[index];
+                return _buildBookingItem(booking);
+              },
+            );
+          } else {
+            // Display if no data is available (fallback case)
+            return const Center(child: Text('No data available'));
+          }
+        },
+      ),
     );
   }
-}
 
-class BookingService {
+  Widget _buildBookingItem(BookingDTO booking) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      elevation: 5,
+      shadowColor: Colors.grey.withOpacity(0.2),
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Booking details at the top
+            Text(
+              'Booking ID: ${booking.id}',
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Poppins',
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Email: ${booking.email}',
+              style: const TextStyle(
+                fontSize: 14,
+                fontFamily: 'Poppins',
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Booking Date: ${booking.bookingDate.toLocal()}',
+              style: const TextStyle(
+                fontSize: 14,
+                fontFamily: 'Poppins',
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Status: ${booking.status}',
+              style: const TextStyle(
+                fontSize: 14,
+                fontFamily: 'Poppins',
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Total Amount: \$${booking.totalAmount.toStringAsFixed(2)}',
+              style: const TextStyle(
+                fontSize: 14,
+                fontFamily: 'Poppins',
+              ),
+            ),
+            const SizedBox(height: 12),
+            // See More button to toggle details
+            Align(
+              alignment: Alignment.centerRight,
+              child: ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    _isExpanded = !_isExpanded;
+                  });
+                },
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(80, 36),
+                  backgroundColor: Colors.white.withOpacity(0.8),
+                  foregroundColor: const Color(0xFF6D674B),
+                  shape: RoundedRectangleBorder(
+                    side: const BorderSide(color: Colors.white),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: Text(_isExpanded ? 'Hide Details' : 'See More'),
+              ),
+            ),
+            // Conditional rendering of booking details
+            if (_isExpanded) const SizedBox(height: 8),
+            if (_isExpanded)
+              const Text(
+                'Booking Details:',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Poppins',
+                ),
+              ),
+            if (_isExpanded) const SizedBox(height: 8),
+            if (_isExpanded)
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: booking.bookingDetails.length,
+                itemBuilder: (context, detailIndex) {
+                  final detail = booking.bookingDetails[detailIndex];
+                  return Card(
+                    margin: const EdgeInsets.symmetric(vertical: 4.0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 3,
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Displaying instance details similarly to `_buildCartItem`
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Instance ID: ${detail.instance.id ?? "N/A"}',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'Poppins',
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Price: \$${detail.price.toStringAsFixed(2)}',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontFamily: 'Poppins',
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                if (detail.instance.courseId != null)
+                                  Text(
+                                    'Course ID: ${detail.instance.courseId}',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      fontFamily: 'Poppins',
+                                    ),
+                                  ),
+                                if (detail.instance.teacher != null)
+                                  Text(
+                                    'Teacher: ${detail.instance.teacher}',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      fontFamily: 'Poppins',
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                          // Displaying image placeholder or image (if applicable)
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.asset(
+                              'assets/images/instances/${detail.instance.imageUrl ?? "default_image.png"}',
+                              height: 80,
+                              width: 80,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+          ],
+        ),
+      ),
+    );
+  }
 }

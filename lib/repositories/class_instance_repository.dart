@@ -30,18 +30,22 @@ class ClassInstanceRepository {
 
   // Fetch class instances by course ID
   Future<List<ClassInstance>> getInstancesByCourseId(String courseId) async {
-    try {
-      QuerySnapshot querySnapshot = await _firestore
-          .collection('classInstances')
-          .where('courseId', isEqualTo: courseId)
-          .get();
-      return querySnapshot.docs
-          .map((doc) =>
-              ClassInstance.fromMap(doc.data() as Map<String, dynamic>))
-          .toList();
-    } catch (e) {
-      print('Error fetching class instances by course ID: $e');
-      return [];
-    }
+  try {
+    QuerySnapshot querySnapshot = await _firestore
+        .collection('classInstances')
+        .where('courseId', isEqualTo: courseId)
+        .get(); 
+
+    return querySnapshot.docs.map((doc) {
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      // Thêm id từ DocumentSnapshot vào dữ liệu
+      data['id'] = doc.id;
+      return ClassInstance.fromMap(data);
+    }).toList();
+  } catch (e) {
+    print('Error fetching class instances by course ID: $e');
+    return [];
   }
+}
+
 }

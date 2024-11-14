@@ -1,16 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:yinyoga_customer/dto/cartDTO.dart';
+import 'package:yinyoga_customer/models/booking_detail.dart';
+import 'package:yinyoga_customer/models/booking_model.dart';
+import 'package:yinyoga_customer/services/booking_service.dart';
+import 'package:yinyoga_customer/services/cart_service.dart';
+import 'package:yinyoga_customer/ui/widgets/dialog_success.dart';
 
 class PaymentPopup extends StatelessWidget {
-  final double totalPayment; // Tổng số tiền cần thanh toán
+  final BookingService _bookingService = BookingService();
+  final CartService _cartService = CartService();
+  final double totalPayment;
+  final List<CartDTO> bookingItems;
+  final VoidCallback onSuccess; // Callback to notify parent of successful payment
 
-  PaymentPopup({required this.totalPayment});
+  PaymentPopup({required this.totalPayment, required this.bookingItems, required this.onSuccess});
 
   @override
   Widget build(BuildContext context) {
     return Align(
       alignment: Alignment.bottomCenter,
       child: Padding(
-        padding: const EdgeInsets.all(16.0),  
+        padding: const EdgeInsets.all(16.0),
         child: Material(
           color: Colors.transparent,
           child: Container(
@@ -56,8 +66,7 @@ class PaymentPopup extends StatelessWidget {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    // Thực hiện hành động thanh toán tại đây
-                    print("Payment now button pressed");
+                    _processPayment(context);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF6D674B),
@@ -80,5 +89,61 @@ class PaymentPopup extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _processPayment(BuildContext context) async {
+    try {
+      if (bookingItems.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('No items selected for payment')),
+        );
+        return;
+      }
+
+      String userEmail = "trannq2003@gmail.com"; // Replace with actual user email
+      DateTime bookingDate = DateTime.now();
+      String status = 'pending'; // Default status
+      double totalAmount = totalPayment;
+
+      Booking booking = Booking(
+        id: null,
+        email: userEmail,
+        bookingDate: bookingDate,
+        status: status,
+        totalAmount: totalAmount,
+      );
+
+      List<BookingDetail> bookingDetails = bookingItems.map((cartItem) {
+        return BookingDetail(
+          id: null,
+          bookingId: '',
+          instanceId: cartItem.instanceId,
+          price: cartItem.price,
+        );
+      }).toList();
+
+      await _bookingService.createBooking(booking, bookingDetails);
+
+      for (var cartItem in bookingItems) {
+        await _cartService.removeCartByInstanceId(cartItem.instanceId, userEmail);
+      }
+
+      onSuccess(); // Notify parent of successful payment
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) => CustomSuccessDialog(
+          title: "Payment Successful",
+          content: "Your booking has been created successfully!",
+          onConfirm: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error during payment: $e')),
+      );
+    }
   }
 }

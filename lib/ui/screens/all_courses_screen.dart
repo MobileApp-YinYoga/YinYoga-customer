@@ -3,6 +3,8 @@ import 'package:yinyoga_customer/models/course_model.dart';
 import 'package:yinyoga_customer/services/cart_service.dart';
 import 'package:yinyoga_customer/services/course_service.dart';
 import 'package:yinyoga_customer/ui/screens/course_detail_screen.dart';
+import 'dart:convert';
+import 'dart:typed_data';
 
 class AllCoursesScreen extends StatefulWidget {
   String title; // Đảm bảo truyền vào title
@@ -31,6 +33,13 @@ class _AllCoursesScreenState extends State<AllCoursesScreen> {
   void initState() {
     super.initState();
     _fetchCourses();
+  }
+
+  Uint8List _base64Decode(String source) {
+    String cleanBase64 = source.contains(',') ? source.split(',').last : source;
+    cleanBase64 = cleanBase64.replaceAll(RegExp(r'\s+'), '');
+    Uint8List imageBytes = base64Decode(cleanBase64);
+    return imageBytes;
   }
 
   void _fetchCourses() {
@@ -311,21 +320,30 @@ class _AllCoursesScreenState extends State<AllCoursesScreen> {
             },
             child: ClipRRect(
               borderRadius: BorderRadius.circular(16),
-              child: Image.asset(
-                'assets/images/courses/${course.imageUrl}',
-                height: 150,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
+              child: course.imageUrl.isNotEmpty
+                  ? Image.memory(
+                      // base64Decode(course.imageUrl),
+                      _base64Decode(course.imageUrl),
+                      height: 150,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    )
+                  : Image.asset(
+                      'assets/images/courses/default_image.png', // Default image when base64 string is empty
+                      height: 150,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
             ),
           ),
           Positioned(
             top: 16,
             right: 16,
             child: IconButton(
-              icon: const Icon(Icons.favorite_border, color: Colors.white),
+              icon: const Icon(Icons.add_shopping_cart, color: Colors.white),
               onPressed: () {
                 // Handle favorite action
+                _cartService.addToCart(course.id!, 'trannq2003@gmail.com');
               },
             ),
           ),
@@ -394,7 +412,6 @@ class _AllCoursesScreenState extends State<AllCoursesScreen> {
             child: ElevatedButton(
               onPressed: () {
                 // Handle booking action
-                _cartService.addToCart(course.id!, 'trannq2003@gmail.com');
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white.withOpacity(0.8),

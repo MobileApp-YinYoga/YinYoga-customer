@@ -13,6 +13,7 @@ class _BookingCartScreenState extends State<BookingCartScreen> {
   final CartService _cartService = CartService();
   Future<List<CartDTO>>? _cartItemsFuture;
   List<CartDTO> _cartItems = [];
+  List<CartDTO> _bookingItems = [];
 
   @override
   void initState() {
@@ -31,8 +32,12 @@ class _BookingCartScreenState extends State<BookingCartScreen> {
   // Total amount
   double get totalAmount {
     double total = 0;
+    _bookingItems.clear(); // Clear before recalculating
     for (var item in _cartItems) {
-      if (item.isSelected) total += item.price;
+      if (item.isSelected) {
+        total += item.price;
+        _bookingItems.add(item); // Add selected items
+      }
     }
     return total;
   }
@@ -60,40 +65,60 @@ class _BookingCartScreenState extends State<BookingCartScreen> {
           },
         ),
       ),
-      body: Column(
-        children: [
-          // Edit button
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+      body: _cartItems.isEmpty
+          ? const Center(
+              child: Text(
+                'Your cart is empty',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Poppins',
+                  color: Color(0xFF6D674B),
+                ),
+              ),
+            )
+          : Column(
               children: [
-                ElevatedButton(
-                  onPressed: () {
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            for (var item in _cartItems) {
+                              item.isEditing = !item.isEditing;
+                            }
+                          });
+                        },
+                        child: _buttonEditorDelete(),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: _cartItems.length,
+                    itemBuilder: (context, index) {
+                      final item = _cartItems[index];
+                      return _buildCartItem(item, index);
+                    },
+                  ),
+                ),
+                PaymentPopup(
+                  totalPayment: totalAmount,
+                  bookingItems: _bookingItems,
+                  onSuccess: () {
                     setState(() {
-                      for (var item in _cartItems) {
-                        item.isEditing = !item.isEditing;
-                      }
+                      _cartItems.removeWhere(
+                          (item) => _bookingItems.contains(item));
+                      _bookingItems.clear(); // Clear booking items
                     });
                   },
-                  child: _buttonEditorDelete(),
                 ),
               ],
             ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: _cartItems.length,
-              itemBuilder: (context, index) {
-                final item = _cartItems[index];
-                return _buildCartItem(item, index);
-              },
-            ),
-          ),
-          // Total and Payment
-          PaymentPopup(totalPayment: totalAmount),
-        ],
-      ),
     );
   }
 
@@ -110,35 +135,30 @@ class _BookingCartScreenState extends State<BookingCartScreen> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Show delete icon when in editing mode, otherwise show a checkbox
             item.isEditing
                 ? IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
+                    icon: const Icon(Icons.delete_forever_rounded,
+                        color: Colors.red),
                     onPressed: () {
                       _removeItem(index);
                     },
                   )
-                : Positioned(
-                    top: 10, // Adjust position on the image
-                    right: 10, // Place checkbox on the right side
-                    child: Checkbox(
-                      value: item.isSelected,
-                      onChanged: (value) {
-                        setState(() {
-                          item.isSelected = value!;
-                        });
-                      },
-                      activeColor: const Color(0xFF6D674B),
-                    ),
+                : Checkbox(
+                    value: item.isSelected,
+                    onChanged: (value) {
+                      setState(() {
+                        item.isSelected = value!;
+                      });
+                    },
+                    activeColor: const Color(0xFF6D674B),
                   ),
-            // Course details
             Expanded(
               child: Stack(
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.circular(16),
                     child: Image.asset(
-                      'assets/images/instances/${item.imageUrl ?? "default_image.png"}', // Default image if null
+                      'assets/images/instances/${item.imageUrl ?? "default_image.png"}',
                       height: 150,
                       width: double.infinity,
                       fit: BoxFit.cover,
@@ -150,10 +170,8 @@ class _BookingCartScreenState extends State<BookingCartScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        // Course name and price
                         Text(
-                          item.instanceId ??
-                              'Unknown Course', // Default text if null
+                          item.instanceId,
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -179,7 +197,7 @@ class _BookingCartScreenState extends State<BookingCartScreen> {
                           ),
                         ),
                         Text(
-                          'Teacher: ${item.teacher ?? 'N/A'}', // Teacher for the class instance
+                          'Teacher: ${item.teacher ?? 'N/A'}',
                           style: const TextStyle(
                             fontSize: 12,
                             fontFamily: 'Poppins',
@@ -216,30 +234,26 @@ class _BookingCartScreenState extends State<BookingCartScreen> {
   }
 
   void _removeItem(int index) {
-    setState(() {
-      //load state
-      print("Remove item at index $index - ${_cartItems[index].instanceId}");
-      
-      showDialog(
-        context: context,
-        builder: (BuildContext context) => ConfirmationDialog(
-          title: 'Are you sure you want to remove class ${_cartItems[index].instanceId}?',
-          content: "You won't be able to revert this!",
-          onConfirm: () {
-            _cartService
-                .removeCartByInstanceId(
-                    _cartItems[index].instanceId, "trannq2003@gmail.com")
-                .then(
-              (value) {
-                // Remove the item from the list
-                _cartItems.removeAt(index);
-              },
-            );
-            Navigator.of(context).pop();
-          },
-        ),
-      );
-    });
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => ConfirmationDialog(
+        title: 'Are you sure you want to remove class ${_cartItems[index].instanceId}?',
+        content: "You won't be able to revert this!",
+        onConfirm: () {
+          _cartService
+              .removeCartByInstanceId(
+                  _cartItems[index].instanceId, "trannq2003@gmail.com")
+              .then(
+            (value) {
+              setState(() {
+                _cartItems.removeAt(index); // Remove and refresh UI
+              });
+            },
+          );
+          Navigator.of(context).pop();
+        },
+      ),
+    );
   }
 
   _buttonEditorDelete() {

@@ -337,7 +337,6 @@ class _HomeContentState extends State<HomeContent> {
             height: 240,
             child: GestureDetector(
               onTap: () {
-                print("classType: $classType");
                 Navigator.push(
                   context,
                   MaterialPageRoute(
