@@ -65,14 +65,22 @@ class _BookingCartScreenState extends State<BookingCartScreen> {
             color: Color(0xFF6D674B),
           ),
         ),
-        centerTitle: true,
-        backgroundColor: const Color.fromARGB(255, 232, 232, 232),
-        elevation: 4,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pop(context);
           },
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        elevation: 1, // Remove default shadow to create a clean line appearance
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1.0), // Height of the line
+          child: Container(
+            color: const Color(0xFF6D674B), // Line color
+            width: 50,
+            height: 1.0, // Line thickness
+          ),
         ),
       ),
       body: _cartItems.isEmpty
@@ -94,15 +102,26 @@ class _BookingCartScreenState extends State<BookingCartScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            for (var item in _cartItems) {
-                              item.isEditing = !item.isEditing;
-                            }
-                          });
-                        },
-                        child: _buttonEditorDelete(),
+                      SizedBox(
+                        width: 100, // Set width to 30px
+                        height: 30, // Set height to 30px   
+                        child: ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              for (var item in _cartItems) {
+                                item.isEditing = !item.isEditing;
+                              }
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets
+                                .zero, // Remove padding to match the size constraints
+                            side: const BorderSide(
+                                color: Color(0xFF6D674B), width: 1),
+                            shape: const CircleBorder(),
+                          ),
+                          child: _buttonEditorDelete(),
+                        ),
                       ),
                     ],
                   ),
@@ -276,8 +295,10 @@ class _BookingCartScreenState extends State<BookingCartScreen> {
   }
 
   _buttonEditorDelete() {
-    return Text(
-      _cartItems.any((item) => item.isEditing) ? 'Done' : 'Edit',
+    final isEditing = _cartItems.any((item) => item.isEditing);
+    return Icon(
+      isEditing ? Icons.edit : Icons.delete,
+      color: Color(0xFF6D674B),
     );
   }
 }

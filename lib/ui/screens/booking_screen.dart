@@ -49,8 +49,16 @@ class _BookingScreenState extends State<BookingScreen> {
           ),
         ),
         centerTitle: true,
-        backgroundColor: const Color.fromARGB(255, 232, 232, 232),
-        elevation: 4,
+        backgroundColor: Colors.white,
+        elevation: 1, // Remove default shadow to create a clean line appearance
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1.0), // Height of the line
+          child: Container(
+            color: const Color(0xFF6D674B), // Line color
+            width: 50,
+            height: 1.0, // Line thickness
+          ),
+        ),
       ),
       body: FutureBuilder<List<BookingDTO>>(
         future: _bookingItemsFuture, // Fetch bookings from the service
