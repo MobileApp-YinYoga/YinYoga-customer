@@ -59,93 +59,45 @@ class CourseRepository {
 
   Future<List<TopCourseDTO>> fetchTopCourses() async {
     try {
-      // Fetch the courses, limiting to top 5 courses
+      // Fetch all courses
       QuerySnapshot courseSnapshot =
-          await _firestore.collection('courses').limit(5).get();
+          await _firestore.collection('courses').get();
 
       List<TopCourseDTO> topCourses = [];
 
-      // A map to hold the classType and its total booking count
-      Map<String, int> classTypeBookingCount = {};
-
-      // Fetch all class instances and related booking details
+      // Iterate through each course document and prepare DTO objects
       for (var courseDoc in courseSnapshot.docs) {
         String courseId = courseDoc.id;
         String courseName = courseDoc['courseName'] ?? 'Unknown Course';
-        String courseType = courseDoc['courseType'];
+        String courseType = courseDoc['courseType'] ?? 'Unknown Type';
 
-        // Fetch class instances for the current course
+        // Default image handling
+        String imageUrl = "category_default.png"; // Default image if not found
+        if (courseType.isNotEmpty) {
+          String formattedClassType =
+              courseType.toLowerCase().replaceAll(' ', '_');
+          imageUrl = "$formattedClassType.png";
+        }
+
+        // Count number of class instances associated with the course
         QuerySnapshot classInstanceSnapshot = await _firestore
             .collection('classInstances')
             .where('courseId', isEqualTo: courseId)
             .get();
 
-        for (var classInstanceDoc in classInstanceSnapshot.docs) {
-          String classInstanceId = classInstanceDoc.id;
+        int numberOfClassInstances = classInstanceSnapshot.docs.length;
 
-          // Count bookings for this class instance
-          QuerySnapshot bookingDetailSnapshot = await _firestore
-              .collection('bookingDetails')
-              .where('instanceId', isEqualTo: classInstanceId)
-              .get();
+        // Create DTO object for the course
+        TopCourseDTO topCourse = TopCourseDTO(
+          courseId: courseId,
+          courseName: courseName,
+          imageUrl: imageUrl,
+          numberOfClassInstances: numberOfClassInstances, // Updated count
+          classType: courseType,
+        );
 
-          int totalBookings = bookingDetailSnapshot.size;
-
-          // Add to classTypeBookingCount map
-          if (classTypeBookingCount.containsKey(courseType)) {
-            classTypeBookingCount[courseType] =
-                classTypeBookingCount[courseType]! + totalBookings;
-          } else {
-            classTypeBookingCount[courseType] = totalBookings;
-          }
-        }
-      }
-
-      // Sort class types by total bookings (descending order)
-      var sortedClassTypes = classTypeBookingCount.entries.toList()
-        ..sort((a, b) => b.value.compareTo(a.value));
-
-      // Get the top 5 class types
-      List<String> topClassTypes =
-          sortedClassTypes.take(5).map((entry) => entry.key).toList();
-
-      // Prepare the DTO objects for the top courses
-      for (var classType in topClassTypes) {
-        // Fetch courses for this classType
-        QuerySnapshot courseSnapshot = await _firestore
-            .collection('courses')
-            .where('courseType', isEqualTo: classType)
-            .limit(
-                5) // Assuming each classType will only have one representative course
-            .get();
-
-        for (var courseDoc in courseSnapshot.docs) {
-          String courseId = courseDoc.id;
-          String courseName = courseDoc['courseName'] ?? 'Unknown Course';
-          String imageUrl =
-              "category_default.png"; // Default image if not found
-
-          // Handle imageUrl based on course type (added default image handling)
-          if (classType != null && classType.isNotEmpty) {
-            String formattedClassType =
-                classType.toLowerCase().replaceAll(' ', '_');
-            imageUrl = "$formattedClassType.png";
-          }
-
-          TopCourseDTO topCourse = TopCourseDTO(
-            courseId: courseId,
-            courseName: courseName,
-            imageUrl: imageUrl,
-            numberOfClassInstances: classTypeBookingCount[classType]!,
-            classType: classType,
-          );
-
-          //print(topCourse);
-          print(
-              "Course: $courseName - $courseId, Image: $imageUrl, Type: $classType, Count: ${classTypeBookingCount[classType]}");
-
-          topCourses.add(topCourse);
-        }
+        // Add the course to the list
+        topCourses.add(topCourse);
       }
 
       return topCourses;

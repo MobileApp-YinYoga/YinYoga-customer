@@ -2,18 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:yinyoga_customer/dto/cartDTO.dart';
 import 'package:yinyoga_customer/models/booking_detail.dart';
 import 'package:yinyoga_customer/models/booking_model.dart';
+import 'package:yinyoga_customer/models/notification_model.dart';
 import 'package:yinyoga_customer/services/booking_service.dart';
 import 'package:yinyoga_customer/services/cart_service.dart';
+import 'package:yinyoga_customer/services/notification_service.dart';
 import 'package:yinyoga_customer/ui/widgets/dialog_success.dart';
+import 'package:yinyoga_customer/utils/otpService.dart';
 
 class PaymentPopup extends StatelessWidget {
   final BookingService _bookingService = BookingService();
+  final NotificationService _notification = NotificationService();
   final CartService _cartService = CartService();
   final double totalPayment;
   final List<CartDTO> bookingItems;
-  final VoidCallback onSuccess; // Callback to notify parent of successful payment
+  final VoidCallback
+      onSuccess; // Callback to notify parent of successful payment
 
-  PaymentPopup({required this.totalPayment, required this.bookingItems, required this.onSuccess});
+  PaymentPopup(
+      {required this.totalPayment,
+      required this.bookingItems,
+      required this.onSuccess});
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +81,8 @@ class PaymentPopup extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 10),
                   ),
                   child: const Text(
                     'Payment Now',
@@ -100,9 +109,10 @@ class PaymentPopup extends StatelessWidget {
         return;
       }
 
-      String userEmail = "trannq2003@gmail.com"; // Replace with actual user email
+      String userEmail =
+          "trannq2003@gmail.com"; // Thay bằng email của người dùng
       DateTime bookingDate = DateTime.now();
-      String status = 'pending'; // Default status
+      String status = 'pending'; // Mặc định là pending
       double totalAmount = totalPayment;
 
       Booking booking = Booking(
@@ -125,21 +135,41 @@ class PaymentPopup extends StatelessWidget {
       await _bookingService.createBooking(booking, bookingDetails);
 
       for (var cartItem in bookingItems) {
-        await _cartService.removeCartByInstanceId(cartItem.instanceId, userEmail);
+        await _cartService.removeCartByInstanceId(
+            cartItem.instanceId, userEmail);
       }
 
-      onSuccess(); // Notify parent of successful payment
+      // Gọi hàm gửi email thông báo đăng ký thành công
+      MailgunService mailgunService = MailgunService();
+      String courseName = "Yoga Course"; // Tên khóa học
+      await mailgunService.sendRegistrationSuccessEmail(userEmail, courseName);
+
+      //Lưu vào notification
+      NotificationModel notification = NotificationModel(
+        id: DateTime.now().toIso8601String(),
+        email: userEmail,
+        title: 'Booking Successful',
+        description:
+            'You have successfully registered for $courseName. Your registration is pending approval.',
+        time: DateTime.now().toString(),
+        isRead: false,
+        createdDate: DateTime.now().toIso8601String(),
+      );
+
+      _notification.addNotification(notification);
 
       showDialog(
         context: context,
         builder: (BuildContext context) => CustomSuccessDialog(
           title: "Payment Successful",
-          content: "Your booking has been created successfully!",
+          content: "Check your email for confirmation",
           onConfirm: () {
             Navigator.of(context).pop();
           },
         ),
       );
+
+      onSuccess(); // Notify parent of successful payment
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error during payment: $e')),

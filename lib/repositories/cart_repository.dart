@@ -20,8 +20,10 @@ class CartRepository {
       List<CartDTO> cartItems = [];
 
       // Collect all instanceIds from the carts for the user
-      List<String> instanceIds =
-          snapshot.docs.map((doc) => doc['instanceId'] as String).toList();
+      List<String> instanceIds = snapshot.docs
+          .map((doc) => doc['instanceId']
+              .toString()) // Ensure instanceId is treated as a string
+          .toList();
 
       for (var instanceId in instanceIds) {
         // Fetch classInstance details using the instanceId
@@ -29,11 +31,13 @@ class CartRepository {
             await _firestore.collection('classInstances').doc(instanceId).get();
 
         if (classInstanceSnapshot.exists) {
-          String courseId = classInstanceSnapshot[
-              'courseId']; // Get courseId from classInstance
           // Fetch course details using courseId
+          dynamic courseId = classInstanceSnapshot['courseId'];
+          String courseIdString =
+              courseId.toString(); // Convert courseId to string
+
           DocumentSnapshot courseDoc =
-              await _firestore.collection('courses').doc(courseId).get();
+              await _firestore.collection('courses').doc(courseIdString).get();
 
           if (courseDoc.exists) {
             var courseData = courseDoc.data() as Map<String, dynamic>;
@@ -45,9 +49,8 @@ class CartRepository {
               instanceId: instanceId,
               courseName: courseData['courseName'] ?? 'Unknown Course',
               date: classInstanceData['dates']?.toString() ??
-                  'N/A', // Convert Firestore timestamp to Date
-              time: courseData['time']?.toString() ??
-                  'N/A', // Adjust to match your data format
+                  'N/A', // Convert Firestore timestamp to String, if necessary
+              time: courseData['time']?.toString() ?? 'N/A',
               teacher: classInstanceData['teacher'] ?? 'N/A',
               imageUrl: classInstanceData['imageUrl'] ?? 'default_image.png',
               price: courseData['price']?.toDouble() ??
@@ -59,7 +62,7 @@ class CartRepository {
 
       return cartItems;
     } catch (e) {
-      print('Error fetching bookings: $e');
+      print('Error fetching cart: $e');
       return []; // Return empty list in case of error
     }
   }
@@ -110,7 +113,6 @@ class CartRepository {
   // Delete a cart by bookingId
   Future<void> deleteCartByInstanceId(String instanceId, String email) async {
     try {
-
       //print email và instanceId để kiểm tra
       print('email: $email');
       print('instanceId: $instanceId');

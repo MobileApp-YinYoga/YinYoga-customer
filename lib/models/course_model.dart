@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 class Course {
-  final String? id;
+  final String? id; // Changed from int? to String?
   final String courseName;
   final String imageUrl;
   final String dayOfWeek;
@@ -12,7 +12,7 @@ class Course {
   final double price;
   final String courseType;
   final String description;
-  final DateTime createdAt; // Thêm thuộc tính createdAt
+  final DateTime createdAt; // Added createdAt attribute
 
   Course({
     this.id,
@@ -43,11 +43,9 @@ class Course {
     };
   }
 
-
-
   factory Course.fromMap(Map<String, dynamic> map, String id) {
     return Course(
-      id: id,
+      id: id, // Keep id as String
       courseName: map['courseName'],
       imageUrl: map['imageUrl'],
       dayOfWeek: map['dayOfWeek'],
@@ -61,7 +59,7 @@ class Course {
     );
   }
 
-  //thêm empty constructor
+  // Add an empty constructor
   Course.empty()
       : id = '',
         courseName = '',
@@ -70,13 +68,11 @@ class Course {
         time = '',
         capacity = 0,
         duration = 0,
-        price = 0,
+        price = 0.0,
         courseType = '',
         description = '',
         createdAt = DateTime.now();
 
-
   // Convert base64 to Uint8List for displaying image
   Uint8List get imageBytes => base64Decode(imageUrl);
-
 }

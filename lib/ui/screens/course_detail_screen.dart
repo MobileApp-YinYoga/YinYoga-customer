@@ -76,18 +76,18 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
               ClipRRect(
                 borderRadius: BorderRadius.circular(16),
                 child: widget.course.imageUrl.isNotEmpty
-                  ? Image.memory(
-                      _base64Decode(widget.course.imageUrl),
-                      height: 150,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                    )
-                  : Image.asset(
-                      'assets/images/courses/default_image.png', // Default image when base64 string is empty
-                      height: 150,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                    ),
+                    ? Image.memory(
+                        _base64Decode(widget.course.imageUrl),
+                        height: 150,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      )
+                    : Image.asset(
+                        'assets/images/courses/default_image.png', // Default image when base64 string is empty
+                        height: 150,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
               ),
               const SizedBox(height: 16),
               Text(
@@ -222,12 +222,20 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(16),
-            child: Image.asset(
-              'assets/images/instances/${classInstance.imageUrl}',
-              height: 150,
-              width: double.infinity,
-              fit: BoxFit.cover,
-            ),
+            child: classInstance.imageUrl.isNotEmpty
+                ? Image.memory(
+                    // base64Decode(course.imageUrl),
+                    _base64Decode(classInstance.imageUrl),
+                    height: 150,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  )
+                : Image.asset(
+                    'assets/images/courses/default_image.png', // Default image when base64 string is empty
+                    height: 150,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
           ),
           Positioned(
             top: 16,
@@ -296,7 +304,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                   ),
                 ),
                 Text(
-                  'Date: ${DateFormat('MMMM d, yyyy').format(classInstance.dates)}',
+                  'Date: ${DateFormat('MMMM d, yyyy').format(classInstance.date)}',
                   style: const TextStyle(
                     fontSize: 14,
                     fontFamily: 'Poppins',

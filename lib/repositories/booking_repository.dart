@@ -32,7 +32,9 @@ class BookingRepository {
         });
       }
 
-      //updated capcity 
+      //updated duration
+
+      // Gửi email thông báo đặt lịch thành công
     } catch (e) {
       print('Error adding booking: $e');
     }
@@ -40,7 +42,7 @@ class BookingRepository {
 
   Future<List<BookingDTO>> getBookingsByEmail(String email) async {
     try {
-      // Lấy danh sách Booking theo email
+      // Fetch bookings by email
       QuerySnapshot bookingSnapshot = await _firestore
           .collection('bookings')
           .where('email', isEqualTo: email)
@@ -49,10 +51,19 @@ class BookingRepository {
       List<BookingDTO> bookings = [];
 
       for (var doc in bookingSnapshot.docs) {
-        Map<String, dynamic> bookingData = doc.data() as Map<String, dynamic>;
+        Map<String, dynamic> bookingData =
+            doc.data() as Map<String, dynamic>? ?? {};
         String bookingId = doc.id;
 
-        // Lấy danh sách BookingDetail liên quan đến Booking này
+        // Ensure required fields are not null or handle defaults
+        String bookingEmail = bookingData['email'] ?? 'Unknown';
+        String bookingStatus = bookingData['status'] ?? 'Pending';
+        DateTime bookingDate = bookingData['bookingDate'] != null
+            ? DateTime.tryParse(bookingData['bookingDate']) ?? DateTime.now()
+            : DateTime.now();
+        double totalAmount = bookingData['totalAmount']?.toDouble() ?? 0.0;
+
+        // Fetch related BookingDetails
         QuerySnapshot bookingDetailSnapshot = await _firestore
             .collection('bookingDetails')
             .where('bookingId', isEqualTo: bookingId)
@@ -62,48 +73,55 @@ class BookingRepository {
 
         for (var detailDoc in bookingDetailSnapshot.docs) {
           Map<String, dynamic> detailData =
-              detailDoc.data() as Map<String, dynamic>;
+              detailDoc.data() as Map<String, dynamic>? ?? {};
 
-          // Lấy thông tin ClassInstance liên quan
-          String instanceId = detailData['instanceId'];
-          DocumentSnapshot instanceDoc = await _firestore
-              .collection('classInstances')
-              .doc(instanceId)
-              .get();
+          // Check for null instanceId before fetching the classInstance
+          String? instanceId = detailData['instanceId'];
+          if (instanceId != null) {
+            DocumentSnapshot instanceDoc = await _firestore
+                .collection('classInstances')
+                .doc(instanceId)
+                .get();
 
-          if (instanceDoc.exists) {
-            Map<String, dynamic> instanceData =
-                instanceDoc.data() as Map<String, dynamic>;
+            if (instanceDoc.exists) {
+              Map<String, dynamic> instanceData =
+                  instanceDoc.data() as Map<String, dynamic>? ?? {};
 
-            // Tạo ClassInstance từ dữ liệu lấy được
-            ClassInstance instance = ClassInstance(
-              id: instanceId,
-              // Gán các trường còn lại theo mô hình ClassInstance của bạn
-              // Ví dụ:
-              courseId: instanceData['courseId'],
-              dates: DateTime.parse(instanceData['dates']),
-              teacher: instanceData['teacher'],
-              imageUrl: instanceData['imageUrl'],
-            );
+              // Create ClassInstance while handling potential nulls
+              ClassInstance instance = ClassInstance(
+                id: instanceId,
+                courseId: instanceData['courseId'] ??
+                    0, // Provide default or handle null
+                date: instanceData['dates'] != null
+                    ? DateTime.tryParse(instanceData['dates']) ?? DateTime.now()
+                    : DateTime.now(),
+                teacher: instanceData['teacher'] ?? 'Unknown',
+                imageUrl: instanceData['imageUrl'] ?? 'default_image.png',
+              );
 
-            // Tạo BookingDetailDTO từ dữ liệu lấy được
-            BookingDetailDTO bookingDetail = BookingDetailDTO(
-              id: detailDoc.id,
-              instance: instance,
-              price: detailData['price'],
-            );
+              // Create BookingDetailDTO
+              BookingDetailDTO bookingDetail = BookingDetailDTO(
+                id: detailDoc.id,
+                instance: instance,
+                price: detailData['price']?.toDouble() ??
+                    0.0, // Ensure price is a double
+              );
 
-            bookingDetails.add(bookingDetail);
+              bookingDetails.add(bookingDetail);
+            }
+          } else {
+            print(
+                'Skipping booking detail with null instanceId: ${detailDoc.id}');
           }
         }
 
-        // Tạo BookingDTO từ dữ liệu đã lấy
+        // Create BookingDTO
         BookingDTO bookingDTO = BookingDTO(
           id: bookingId,
-          email: bookingData['email'],
-          bookingDate: DateTime.parse(bookingData['bookingDate']),
-          status: bookingData['status'],
-          totalAmount: bookingData['totalAmount'],
+          email: bookingEmail,
+          bookingDate: bookingDate,
+          status: bookingStatus,
+          totalAmount: totalAmount,
           bookingDetails: bookingDetails,
         );
 

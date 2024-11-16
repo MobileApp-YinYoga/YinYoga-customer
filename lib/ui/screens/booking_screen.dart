@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:yinyoga_customer/dto/bookingDTO.dart';
 import 'package:yinyoga_customer/services/booking_service.dart';
@@ -11,12 +14,19 @@ class BookingScreen extends StatefulWidget {
   _BookingScreenState createState() => _BookingScreenState();
 }
 
+Uint8List _base64Decode(String source) {
+  String cleanBase64 = source.contains(',') ? source.split(',').last : source;
+  cleanBase64 = cleanBase64.replaceAll(RegExp(r'\s+'), '');
+  Uint8List imageBytes = base64Decode(cleanBase64);
+  return imageBytes;
+}
+
 class _BookingScreenState extends State<BookingScreen> {
   final BookingService _bookingService =
       BookingService(); // Initialize BookingService
   late Future<List<BookingDTO>> _bookingItemsFuture;
   bool _isExpanded = false;
-  
+
   String userEmail = "trannq2003@gmail.com"; // Track if details are expanded
 
   @override
@@ -211,6 +221,7 @@ class _BookingScreenState extends State<BookingScreen> {
                 itemCount: booking.bookingDetails.length,
                 itemBuilder: (context, detailIndex) {
                   final detail = booking.bookingDetails[detailIndex];
+                  print("detail: ${detail.instance.imageUrl}");
                   return Card(
                     margin: const EdgeInsets.symmetric(vertical: 4.0),
                     shape: RoundedRectangleBorder(
@@ -266,12 +277,23 @@ class _BookingScreenState extends State<BookingScreen> {
                           // Displaying image placeholder or image (if applicable)
                           ClipRRect(
                             borderRadius: BorderRadius.circular(12),
-                            child: Image.asset(
-                              'assets/images/instances/${detail.instance.imageUrl ?? "default_image.png"}',
-                              height: 80,
-                              width: 80,
-                              fit: BoxFit.cover,
-                            ),
+                            child: detail.instance.imageUrl.isNotEmpty
+                                ? SizedBox(
+                                    width: 150, // Set a defined width
+                                    height: 150, // Set a defined height
+                                    child: Image.memory(
+                                      _base64Decode(detail.instance.imageUrl),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  )
+                                : SizedBox(
+                                    width: 150,
+                                    height: 150,
+                                    child: Image.asset(
+                                      'assets/images/courses/default_image.png',
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
                           ),
                         ],
                       ),

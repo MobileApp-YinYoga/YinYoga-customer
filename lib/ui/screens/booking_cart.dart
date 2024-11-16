@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:yinyoga_customer/dto/cartDTO.dart';
 import 'package:yinyoga_customer/services/cart_service.dart';
@@ -19,6 +22,13 @@ class _BookingCartScreenState extends State<BookingCartScreen> {
   void initState() {
     super.initState();
     _fetchCarts();
+  }
+
+  Uint8List _base64Decode(String source) {
+    String cleanBase64 = source.contains(',') ? source.split(',').last : source;
+    cleanBase64 = cleanBase64.replaceAll(RegExp(r'\s+'), '');
+    Uint8List imageBytes = base64Decode(cleanBase64);
+    return imageBytes;
   }
 
   void _fetchCarts() {
@@ -111,8 +121,8 @@ class _BookingCartScreenState extends State<BookingCartScreen> {
                   bookingItems: _bookingItems,
                   onSuccess: () {
                     setState(() {
-                      _cartItems.removeWhere(
-                          (item) => _bookingItems.contains(item));
+                      _cartItems
+                          .removeWhere((item) => _bookingItems.contains(item));
                       _bookingItems.clear(); // Clear booking items
                     });
                   },
@@ -157,12 +167,20 @@ class _BookingCartScreenState extends State<BookingCartScreen> {
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.circular(16),
-                    child: Image.asset(
-                      'assets/images/instances/${item.imageUrl ?? "default_image.png"}',
-                      height: 150,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                    ),
+                    child: item.imageUrl.isNotEmpty
+                        ? Image.memory(
+                            // base64Decode(course.imageUrl),
+                            _base64Decode(item.imageUrl),
+                            height: 150,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          )
+                        : Image.asset(
+                            'assets/images/courses/default_image.png', // Default image when base64 string is empty
+                            height: 150,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(16.0),
@@ -237,7 +255,8 @@ class _BookingCartScreenState extends State<BookingCartScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) => ConfirmationDialog(
-        title: 'Are you sure you want to remove class ${_cartItems[index].instanceId}?',
+        title:
+            'Are you sure you want to remove class ${_cartItems[index].instanceId}?',
         content: "You won't be able to revert this!",
         onConfirm: () {
           _cartService

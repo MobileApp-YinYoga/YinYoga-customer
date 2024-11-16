@@ -6,8 +6,10 @@ class NotificationRepository {
 
   Future<List<NotificationModel>> fetchNotifications() async {
     try {
-      QuerySnapshot snapshot =
-          await _firestore.collection('notifications').get();
+       QuerySnapshot snapshot = await _firestore
+        .collection('notifications')
+        .orderBy('time', descending: true) // Sort by 'time', most recent first
+        .get();
 
       
       return snapshot.docs.map((doc) {

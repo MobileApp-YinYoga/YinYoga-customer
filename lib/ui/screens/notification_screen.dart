@@ -34,18 +34,18 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       setState(() {
         newNotifications = notifications.where((notif) {
           // Check if the notification is from today
-          DateTime createdDate = DateTime.parse(notif.createdDate);
-          return createdDate.year == today.year &&
-              createdDate.month == today.month &&
-              createdDate.day == today.day;
+          DateTime time = DateTime.parse(notif.time);
+          return time.year == today.year &&
+              time.month == today.month &&
+              time.day == today.day;
         }).toList();
 
         oldNotifications = notifications.where((notif) {
           // Check if the notification is not from today
-          DateTime createdDate = DateTime.parse(notif.createdDate);
-          return !(createdDate.year == today.year &&
-              createdDate.month == today.month &&
-              createdDate.day == today.day);
+          DateTime time = DateTime.parse(notif.time);
+          return !(time.year == today.year &&
+              time.month == today.month &&
+              time.day == today.day);
         }).toList();
 
         _isLoading = false;
@@ -82,7 +82,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (_isLoading) const Center(child: CircularProgressIndicator()),
-
               // New notifications section
               if (newNotifications.isNotEmpty)
                 Column(

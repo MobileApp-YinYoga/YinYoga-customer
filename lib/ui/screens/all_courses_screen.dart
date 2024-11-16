@@ -336,17 +336,17 @@ class _AllCoursesScreenState extends State<AllCoursesScreen> {
                     ),
             ),
           ),
-          Positioned(
-            top: 16,
-            right: 16,
-            child: IconButton(
-              icon: const Icon(Icons.add_shopping_cart, color: Colors.white),
-              onPressed: () {
-                // Handle favorite action
-                _cartService.addToCart(course.id!, 'trannq2003@gmail.com');
-              },
-            ),
-          ),
+          // Positioned(
+          //   top: 16,
+          //   right: 16,
+          //   child: IconButton(
+          //     icon: const Icon(Icons.add_shopping_cart, color: Colors.white),
+          //     onPressed: () {
+          //       // Handle favorite action
+          //       _cartService.addToCart(course.id!, 'trannq2003@gmail.com');
+          //     },
+          //   ),
+          // ),
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -406,24 +406,24 @@ class _AllCoursesScreenState extends State<AllCoursesScreen> {
               ],
             ),
           ),
-          Positioned(
-            bottom: 16,
-            right: 16,
-            child: ElevatedButton(
-              onPressed: () {
-                // Handle booking action
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white.withOpacity(0.8),
-                foregroundColor: const Color(0xFF6D674B),
-                shape: RoundedRectangleBorder(
-                  side: const BorderSide(color: Colors.white),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: const Text('Booking now'),
-            ),
-          ),
+          // Positioned(
+          //   bottom: 16,
+          //   right: 16,
+          //   child: ElevatedButton(
+          //     onPressed: () {
+          //       // Handle booking action
+          //     },
+          //     style: ElevatedButton.styleFrom(
+          //       backgroundColor: Colors.white.withOpacity(0.8),
+          //       foregroundColor: const Color(0xFF6D674B),
+          //       shape: RoundedRectangleBorder(
+          //         side: const BorderSide(color: Colors.white),
+          //         borderRadius: BorderRadius.circular(12),
+          //       ),
+          //     ),
+          //     child: const Text('Booking now'),
+          //   ),
+          // ),
         ],
       ),
     );
