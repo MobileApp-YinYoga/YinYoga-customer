@@ -30,29 +30,41 @@ class CustomFooter extends StatelessWidget {
 
     return BottomNavigationBar(
       currentIndex: currentIndex,
-      onTap: onTap,
+      onTap: (index) => onTap(index),
       type: BottomNavigationBarType.fixed,
+      backgroundColor: Colors.white,
+      elevation: 5, // Đổ bóng cho thanh điều hướng
+      selectedFontSize: 0, // Xóa bỏ font size của label
+      unselectedFontSize: 0,
       items: List.generate(regularIcons.length, (index) {
         return BottomNavigationBarItem(
-          backgroundColor: Colors.white,
-          icon: Column(
+          icon: Stack(
+            clipBehavior: Clip.none,
             children: [
-              if (currentIndex == index)
-                Container(
-                  width: 26,
-                  height: 2,
-                  color: const Color(0xFF6D674B), // Màu thanh gạch lấy từ hình
-                  margin: const EdgeInsets.only(top: 0),
+              // Icon hiển thị hình ảnh
+              Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: Image.asset(
+                  currentIndex == index ? boldIcons[index] : regularIcons[index],
+                  width: 24,
+                  height: 24,
                 ),
-              const SizedBox(height: 2),
-              Image.asset(
-                currentIndex == index ? boldIcons[index] : regularIcons[index],
-                width: 24,
-                height: 24,
               ),
+              // Thanh ngang phía trên
+              if (currentIndex == index)
+                Positioned(
+                  top: 0, // Thanh ngang nằm sát phía trên icon
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    height: 2,
+                    width: double.infinity,
+                    color: const Color(0xFF6D674B), // Màu gạch
+                  ),
+                ),
             ],
           ),
-          label: '',
+          label: '', // Xóa bỏ label của BottomNavigationBarItem
         );
       }),
     );

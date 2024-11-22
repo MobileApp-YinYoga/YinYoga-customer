@@ -7,6 +7,7 @@ import 'package:yinyoga_customer/models/class_instance_model.dart';
 import 'package:yinyoga_customer/models/course_model.dart';
 import 'package:yinyoga_customer/services/cart_service.dart';
 import 'package:yinyoga_customer/services/class_instance.dart';
+import 'package:yinyoga_customer/ui/screens/booking_cart.dart';
 import 'package:yinyoga_customer/ui/widgets/dialog_success.dart';
 
 class CourseDetailsScreen extends StatefulWidget {
@@ -73,21 +74,35 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Image Banner
-              ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: widget.course.imageUrl.isNotEmpty
-                    ? Image.memory(
-                        _base64Decode(widget.course.imageUrl),
-                        height: 150,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                      )
-                    : Image.asset(
-                        'assets/images/courses/default_image.png', // Default image when base64 string is empty
-                        height: 150,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                      ),
+              Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: widget.course.imageUrl.isNotEmpty
+                        ? Image.memory(
+                            _base64Decode(widget.course.imageUrl),
+                            height: 150,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          )
+                        : Image.asset(
+                            'assets/images/courses/default_image.png', // Default image when base64 string is empty
+                            height: 150,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
+                  ),
+                  Container(
+                    height: 150,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      borderRadius:
+                          BorderRadius.circular(20), // Corner radius 20
+                      color: const Color(0xFF6D674B)
+                          .withOpacity(0.3), // Fill 6D674B with opacity 40%
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 16),
               Text(
@@ -237,6 +252,15 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                     fit: BoxFit.cover,
                   ),
           ),
+          Container(
+            height: 150,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20), // Corner radius 20
+              color: const Color(0xFF6D674B)
+                  .withOpacity(0.3), // Fill 6D674B with opacity 40%
+            ),
+          ),
           Positioned(
             top: 16,
             right: 16,
@@ -261,6 +285,12 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                                   'You have successfully booked this class instance.',
                               onConfirm: () {
                                 Navigator.pop(context);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => BookingCartScreen(),
+                                  ),
+                                );
                               },
                             );
                           },

@@ -315,33 +315,46 @@ class _AllCoursesScreenState extends State<AllCoursesScreen> {
       child: Stack(
         children: [
           GestureDetector(
-            onTap: () {
-              // Handle image tap action here (e.g., navigate to course details)
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => CourseDetailsScreen(course: course),
-                ),
-              );
-            },
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: course.imageUrl.isNotEmpty
-                  ? Image.memory(
-                      // base64Decode(course.imageUrl),
-                      _base64Decode(course.imageUrl),
-                      height: 150,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                    )
-                  : Image.asset(
-                      'assets/images/courses/default_image.png', // Default image when base64 string is empty
-                      height: 150,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
+              onTap: () {
+                // Handle image tap action here (e.g., navigate to course details)
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CourseDetailsScreen(course: course),
+                  ),
+                );
+              },
+              child: Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: course.imageUrl.isNotEmpty
+                        ? Image.memory(
+                            // base64Decode(course.imageUrl),
+                            _base64Decode(course.imageUrl),
+                            height: 150,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          )
+                        : Image.asset(
+                            'assets/images/courses/default_image.png', // Default image when base64 string is empty
+                            height: 150,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
+                  ),
+                  Container(
+                    height: 150,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      borderRadius:
+                          BorderRadius.circular(20), // Corner radius 20
+                      color: const Color(0xFF6D674B)
+                          .withOpacity(0.3), // Fill 6D674B with opacity 40%
                     ),
-            ),
-          ),
+                  ),
+                ],
+              )),
           // Positioned(
           //   top: 16,
           //   right: 16,

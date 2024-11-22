@@ -155,97 +155,114 @@ class _BookingCartScreenState extends State<BookingCartScreen> {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
       ),
       elevation: 4,
       child: Stack(
         children: [
           ClipRRect(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(20),
             child: item.imageUrl.isNotEmpty
                 ? Image.memory(
                     _base64Decode(item.imageUrl),
-                    height: 180,
+                    height: 150,
                     width: double.infinity,
                     fit: BoxFit.cover,
                   )
                 : Image.asset(
                     'assets/images/courses/default_image.png',
-                    height: 180,
+                    height: 150,
                     width: double.infinity,
                     fit: BoxFit.cover,
                   ),
           ),
           Container(
-            height: 180,
+            height: 150,
             width: double.infinity,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              gradient: LinearGradient(
-                colors: [Colors.black.withOpacity(0.6), Colors.transparent],
-                begin: Alignment.bottomCenter,
-                end: Alignment.topCenter,
-              ),
+              borderRadius: BorderRadius.circular(20), // Corner radius 20
+              color: const Color(0xFF6D674B)
+                  .withOpacity(0.3), // Fill 6D674B with opacity 40%
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                // Align checkbox at the top-right corner
-                Align(
-                  alignment: Alignment.topRight,
-                  child: item.isEditing
-                      ? IconButton(
-                          icon: const Icon(Icons.delete_forever_rounded,
-                              color: Colors.red),
-                          onPressed: () {
-                            _removeItem(index);
-                          },
-                        )
-                      : Checkbox(
-                          value: item.isSelected,
-                          onChanged: (value) {
-                            setState(() {
-                              item.isSelected = value!;
-                            });
-                          },
-                          fillColor: MaterialStateProperty.resolveWith((states) => Colors.white),
-                          activeColor: const Color(0xFF6D674B),
+                Positioned(
+                    top: 0,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment
+                              .spaceBetween, // Căn chỉnh khoảng cách
+                          children: [
+                            // Text nằm bên trái
+                            Text(
+                              item.instanceId,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            // Checkbox hoặc IconButton nằm bên phải
+                            item.isEditing
+                                ? IconButton(
+                                    icon: const Icon(
+                                      Icons.delete_forever_rounded,
+                                      color: Colors.red,
+                                    ),
+                                    onPressed: () {
+                                      _removeItem(index);
+                                    },
+                                  )
+                                : Checkbox(
+                                    value: item.isSelected,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        item.isSelected = value!;
+                                      });
+                                    },
+                                    checkColor:
+                                        const Color(0xFF6D674B), // Màu tick
+                                    activeColor: const Color(
+                                        0xFF6D674B), // Màu nền khi được check
+                                    fillColor:
+                                        MaterialStateProperty.resolveWith(
+                                      (states) => Colors
+                                          .white, // Màu viền khi không check
+                                    ),
+                                  ),
+                          ],
                         ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  item.instanceId,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Time: ${item.date ?? 'N/A'}',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.white,
-                  ),
-                ),
-                Text(
-                  'Duration: ${item.time ?? 'N/A'} minutes',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.white,
-                  ),
-                ),
-                Text(
-                  'Teacher: ${item.teacher ?? 'N/A'}',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.white,
-                  ),
-                ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Time: ${item.date ?? 'N/A'}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Text(
+                          'Duration: ${item.time ?? 'N/A'} minutes',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Text(
+                          'Teacher: ${item.teacher ?? 'N/A'}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    )),
               ],
             ),
           ),
@@ -255,7 +272,7 @@ class _BookingCartScreenState extends State<BookingCartScreen> {
             child: ElevatedButton(
               onPressed: () {},
               style: ElevatedButton.styleFrom(
-                minimumSize: const Size(50, 30),
+                minimumSize: const Size(40, 30),
                 backgroundColor:
                     Colors.white, // Background color for the price button
                 foregroundColor: const Color(0xFF6D674B), // Text color
@@ -266,7 +283,7 @@ class _BookingCartScreenState extends State<BookingCartScreen> {
                 ),
               ),
               child: Text(
-                "\$${item.price ?? 0}",
+                "${item.price ?? 0} Dollars", // Hoặc "Dolar" tùy ý bạn
                 style: const TextStyle(
                   color: Color(0xFF6D674B), // Correct text color
                   fontWeight: FontWeight.bold,
