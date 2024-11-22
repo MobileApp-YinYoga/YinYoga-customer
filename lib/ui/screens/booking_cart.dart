@@ -104,7 +104,7 @@ class _BookingCartScreenState extends State<BookingCartScreen> {
                     children: [
                       SizedBox(
                         width: 100, // Set width to 30px
-                        height: 30, // Set height to 30px   
+                        height: 30, // Set height to 30px
                         child: ElevatedButton(
                           onPressed: () {
                             setState(() {
@@ -155,117 +155,126 @@ class _BookingCartScreenState extends State<BookingCartScreen> {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
       ),
-      elevation: 5,
-      shadowColor: Colors.grey.withOpacity(0.2),
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            item.isEditing
-                ? IconButton(
-                    icon: const Icon(Icons.delete_forever_rounded,
-                        color: Colors.red),
-                    onPressed: () {
-                      _removeItem(index);
-                    },
+      elevation: 4,
+      child: Stack(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: item.imageUrl.isNotEmpty
+                ? Image.memory(
+                    _base64Decode(item.imageUrl),
+                    height: 180,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
                   )
-                : Checkbox(
-                    value: item.isSelected,
-                    onChanged: (value) {
-                      setState(() {
-                        item.isSelected = value!;
-                      });
-                    },
-                    activeColor: const Color(0xFF6D674B),
+                : Image.asset(
+                    'assets/images/courses/default_image.png',
+                    height: 180,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
                   ),
-            Expanded(
-              child: Stack(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: item.imageUrl.isNotEmpty
-                        ? Image.memory(
-                            // base64Decode(course.imageUrl),
-                            _base64Decode(item.imageUrl),
-                            height: 150,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                          )
-                        : Image.asset(
-                            'assets/images/courses/default_image.png', // Default image when base64 string is empty
-                            height: 150,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                          ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text(
-                          item.instanceId,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Poppins',
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Time: ${item.date ?? 'N/A'}',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontFamily: 'Poppins',
-                            color: Colors.white,
-                          ),
-                        ),
-                        Text(
-                          'Duration: ${item.time ?? 'N/A'} minutes',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontFamily: 'Poppins',
-                            color: Colors.white,
-                          ),
-                        ),
-                        Text(
-                          'Teacher: ${item.teacher ?? 'N/A'}',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontFamily: 'Poppins',
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 16,
-                    right: 16,
-                    child: ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size(30, 30),
-                        backgroundColor: Colors.white.withOpacity(0.8),
-                        foregroundColor: const Color(0xFF6D674B),
-                        shape: RoundedRectangleBorder(
-                          side: const BorderSide(color: Colors.white),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: Text("\$${item.price ?? 0}"),
-                    ),
-                  ),
-                ],
+          ),
+          Container(
+            height: 180,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              gradient: LinearGradient(
+                colors: [Colors.black.withOpacity(0.6), Colors.transparent],
+                begin: Alignment.bottomCenter,
+                end: Alignment.topCenter,
               ),
             ),
-          ],
-        ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Align checkbox at the top-right corner
+                Align(
+                  alignment: Alignment.topRight,
+                  child: item.isEditing
+                      ? IconButton(
+                          icon: const Icon(Icons.delete_forever_rounded,
+                              color: Colors.red),
+                          onPressed: () {
+                            _removeItem(index);
+                          },
+                        )
+                      : Checkbox(
+                          value: item.isSelected,
+                          onChanged: (value) {
+                            setState(() {
+                              item.isSelected = value!;
+                            });
+                          },
+                          fillColor: MaterialStateProperty.resolveWith((states) => Colors.white),
+                          activeColor: const Color(0xFF6D674B),
+                        ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  item.instanceId,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Time: ${item.date ?? 'N/A'}',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.white,
+                  ),
+                ),
+                Text(
+                  'Duration: ${item.time ?? 'N/A'} minutes',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.white,
+                  ),
+                ),
+                Text(
+                  'Teacher: ${item.teacher ?? 'N/A'}',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Positioned(
+            bottom: 16,
+            right: 16,
+            child: ElevatedButton(
+              onPressed: () {},
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(50, 30),
+                backgroundColor:
+                    Colors.white, // Background color for the price button
+                foregroundColor: const Color(0xFF6D674B), // Text color
+                shape: RoundedRectangleBorder(
+                  side: const BorderSide(
+                      color: Color(0xFF6D674B)), // Border color
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: Text(
+                "\$${item.price ?? 0}",
+                style: const TextStyle(
+                  color: Color(0xFF6D674B), // Correct text color
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

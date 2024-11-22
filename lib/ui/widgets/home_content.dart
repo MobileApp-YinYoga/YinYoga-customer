@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:yinyoga_customer/dto/topCourseDTO.dart';
+import 'package:yinyoga_customer/dto/topCategoryDTO.dart';
 import 'package:yinyoga_customer/models/course_model.dart';
 import 'package:yinyoga_customer/services/course_service.dart';
 import 'package:yinyoga_customer/ui/screens/all_courses_screen.dart';
@@ -12,9 +12,9 @@ class HomeContent extends StatefulWidget {
 
 class _HomeContentState extends State<HomeContent> {
   final CourseService _courseService = CourseService();
-  Future<List<TopCourseDTO>>? _coursesFuture;
-  List<TopCourseDTO> _courses = [];
-  List<TopCourseDTO> _filteredCourses = [];
+  Future<List<TopCategoryDTO>>? _coursesFuture;
+  List<TopCategoryDTO> _courses = [];
+  List<TopCategoryDTO> _filteredCourses = [];
   TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
@@ -115,7 +115,7 @@ class _HomeContentState extends State<HomeContent> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                FutureBuilder<List<TopCourseDTO>>(
+                FutureBuilder<List<TopCategoryDTO>>(
                   future: _coursesFuture,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
@@ -125,7 +125,7 @@ class _HomeContentState extends State<HomeContent> {
                     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                       return const Center(child: Text('No courses available'));
                     } else {
-                      List<TopCourseDTO> courses = snapshot.data!;
+                      List<TopCategoryDTO> courses = snapshot.data!;
                       return Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20.0),
                         child: SingleChildScrollView(
@@ -345,7 +345,6 @@ class _HomeContentState extends State<HomeContent> {
                 );
               },
               child: Card(
-                elevation: 3,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),

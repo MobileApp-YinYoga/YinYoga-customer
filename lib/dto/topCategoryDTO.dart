@@ -1,11 +1,11 @@
-class TopCourseDTO {
+class TopCategoryDTO {
   final String courseId;
   final int numberOfClassInstances;
   final String courseName;
   final String classType;
   final String imageUrl;
 
-  TopCourseDTO({
+  TopCategoryDTO({
     required this.courseId,
     required this.numberOfClassInstances,
     required this.courseName,
@@ -23,8 +23,8 @@ class TopCourseDTO {
     };
   }
 
-  factory TopCourseDTO.fromMap(Map<String, dynamic> map) {
-    return TopCourseDTO(
+  factory TopCategoryDTO.fromMap(Map<String, dynamic> map) {
+    return TopCategoryDTO(
       courseId: map['courseId'],
       numberOfClassInstances: map['numberOfClassInstances'],
       courseName: map['courseName'],

@@ -121,7 +121,6 @@ class _AllCoursesScreenState extends State<AllCoursesScreen> {
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
-        elevation: 1, // Remove default shadow to create a clean line appearance
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1.0), // Height of the line
           child: Container(
@@ -304,7 +303,6 @@ class _AllCoursesScreenState extends State<AllCoursesScreen> {
           ),
         );
       }).toList(),
-      elevation: 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),

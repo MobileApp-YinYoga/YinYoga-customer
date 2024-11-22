@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-class MailgunService {
+class MailService {
   // Hàm gửi email thông qua Mailgun API
   Future<String> sendEmail(String toEmail) async {
     String _otp = ''; // Mã OTP sẽ được gửi qua email

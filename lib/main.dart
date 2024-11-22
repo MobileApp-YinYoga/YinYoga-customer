@@ -31,8 +31,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: HomepageScreen(),
-      // home: BookingCartScreen(),
+      // home: HomepageScreen(),
+      home: WelcomeScreen(),
     );
   }
 }

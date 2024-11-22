@@ -13,8 +13,7 @@ class CustomHeader extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.transparent, // AppBar transparent
-      elevation: 0, // No shadow on AppBar
+      backgroundColor: Colors.transparent,
       flexibleSpace: Container(
         width: double.infinity,
         height: imageHeight, // Dynamic height based on the passed parameter

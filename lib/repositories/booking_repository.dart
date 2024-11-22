@@ -31,10 +31,6 @@ class BookingRepository {
           'price': detail.price,
         });
       }
-
-      //updated duration
-
-      // Gửi email thông báo đặt lịch thành công
     } catch (e) {
       print('Error adding booking: $e');
     }

@@ -4,7 +4,7 @@ import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:yinyoga_customer/dto/topCourseDTO.dart';
+import 'package:yinyoga_customer/dto/topCategoryDTO.dart';
 import '../models/course_model.dart';
 
 class CourseRepository {
@@ -57,13 +57,13 @@ class CourseRepository {
     }
   }
 
-  Future<List<TopCourseDTO>> fetchTopCourses() async {
+  Future<List<TopCategoryDTO>> fetchTopCourses() async {
     try {
       // Fetch all courses
       QuerySnapshot courseSnapshot =
           await _firestore.collection('courses').get();
 
-      List<TopCourseDTO> topCourses = [];
+      List<TopCategoryDTO> topCourses = [];
 
       // Iterate through each course document and prepare DTO objects
       for (var courseDoc in courseSnapshot.docs) {
@@ -78,17 +78,20 @@ class CourseRepository {
               courseType.toLowerCase().replaceAll(' ', '_');
           imageUrl = "$formattedClassType.png";
         }
+        print("courseId: $courseId");
 
+        //conver to int courseId
+        int id = int.parse(courseId);
         // Count number of class instances associated with the course
         QuerySnapshot classInstanceSnapshot = await _firestore
             .collection('classInstances')
-            .where('courseId', isEqualTo: courseId)
+            .where('courseId', isEqualTo: id)
             .get();
 
         int numberOfClassInstances = classInstanceSnapshot.docs.length;
 
         // Create DTO object for the course
-        TopCourseDTO topCourse = TopCourseDTO(
+        TopCategoryDTO topCourse = TopCategoryDTO(
           courseId: courseId,
           courseName: courseName,
           imageUrl: imageUrl,

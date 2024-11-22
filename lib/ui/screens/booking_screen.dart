@@ -50,7 +50,6 @@ class _BookingScreenState extends State<BookingScreen> {
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
-        elevation: 1, // Remove default shadow to create a clean line appearance
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1.0), // Height of the line
           child: Container(
@@ -140,7 +139,6 @@ class _BookingScreenState extends State<BookingScreen> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
-      elevation: 5,
       shadowColor: Colors.grey.withOpacity(0.2),
       child: Padding(
         padding: const EdgeInsets.all(12.0),

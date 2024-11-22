@@ -7,7 +7,7 @@ import 'package:yinyoga_customer/services/booking_service.dart';
 import 'package:yinyoga_customer/services/cart_service.dart';
 import 'package:yinyoga_customer/services/notification_service.dart';
 import 'package:yinyoga_customer/ui/widgets/dialog_success.dart';
-import 'package:yinyoga_customer/utils/otpService.dart';
+import 'package:yinyoga_customer/utils/mailService.dart';
 
 class PaymentPopup extends StatelessWidget {
   final BookingService _bookingService = BookingService();
@@ -140,7 +140,7 @@ class PaymentPopup extends StatelessWidget {
       }
 
       // Gọi hàm gửi email thông báo đăng ký thành công
-      MailgunService mailgunService = MailgunService();
+      MailService mailgunService = MailService();
       String courseName = "Yoga Course"; // Tên khóa học
       await mailgunService.sendRegistrationSuccessEmail(userEmail, courseName);
 

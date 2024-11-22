@@ -1,4 +1,4 @@
-import 'package:yinyoga_customer/dto/topCourseDTO.dart';
+import 'package:yinyoga_customer/dto/topCategoryDTO.dart';
 
 import '../models/course_model.dart';
 import '../repositories/course_repository.dart';
@@ -17,7 +17,7 @@ class CourseService {
   }
 
   // Method to fetch top categories
-  Future<List<TopCourseDTO>> getTopCourses() async {
+  Future<List<TopCategoryDTO>> getTopCourses() async {
     return await _courseRepository.fetchTopCourses();
   }
 
