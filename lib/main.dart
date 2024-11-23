@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:yinyoga_customer/ui/screens/booking_cart.dart';
-import 'package:yinyoga_customer/ui/screens/homepage_screen.dart';
 import 'package:yinyoga_customer/ui/screens/welcome_screen.dart';
 import 'firebase_options.dart';
 
@@ -12,12 +10,12 @@ void main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    print('Firebase đã được khởi tạo thành công.');
+    print('Firebase has been initialized successfully.');
   } catch (e) {
-    print('Lỗi khi khởi tạo Firebase: $e');
+    print('Error initializing Firebase: $e');
   }
 
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -31,8 +29,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: HomepageScreen(),
-      // home: WelcomeScreen(),
+      home: const WelcomeScreen(),
     );
   }
 }

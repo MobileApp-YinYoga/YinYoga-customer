@@ -1,21 +1,20 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-class Sharedpreferences {
-  static Future<void> saveEmail(String email) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('userEmail', email);
-    print('Email saved: $email');
+class SharedPreferencesHelper {
+  static Future<void> saveData(String key, String value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString(key, value);
+    print('Data saved: $value');
   }
 
-  static Future<String?> getEmail() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs
-        .getString('userEmail'); // Trả về null nếu không có email được lưu
+  static Future<String?> getData(String key) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString(key); // Returns null if no data is saved
   }
 
   static Future<void> logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('userEmail'); // Xóa email đã lưu trong SharedPreferences
-    print('User logged out. Email removed.');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    print('User logged out.');
   }
 }

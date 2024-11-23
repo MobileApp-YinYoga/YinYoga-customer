@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:yinyoga_customer/ui/screens/homepage_screen.dart';
+import 'package:yinyoga_customer/utils/sharedPreferences.dart';
 
 class EmailInputScreen extends StatefulWidget {
+  const EmailInputScreen({super.key});
+
   @override
   _EmailInputScreenState createState() => _EmailInputScreenState();
 }
@@ -9,10 +13,10 @@ class _EmailInputScreenState extends State<EmailInputScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _fullNameController = TextEditingController();
 
-  String _nameErrorMessage = ''; // Lưu trữ thông báo lỗi cho tên
-  String _emailErrorMessage = ''; // Lưu trữ thông báo lỗi cho email
+  String _nameErrorMessage = '';
+  String _emailErrorMessage = '';
 
-  bool _isLoading = false; // Kiểm tra trạng thái loading
+  bool _isLoading = false;
 
   bool _isValidName(String name) {
     final regex = RegExp(r'^[a-zA-Z\s]+$');
@@ -40,14 +44,28 @@ class _EmailInputScreenState extends State<EmailInputScreen> {
     });
   }
 
-  Future<void> _sendOtp() async {
+  Future<void> _getStarted() async {
     setState(() {
       _isLoading = true;
     });
-    await Future.delayed(const Duration(seconds: 2)); // Fake delay
+    String fullName = _fullNameController.text;
+    String email = _emailController.text;
+
+    SharedPreferencesHelper.saveData('fullName', fullName);
+    SharedPreferencesHelper.saveData('email', email);
+
+    // await Future.delayed(const Duration(seconds: 2)); // Fake delay
     setState(() {
       _isLoading = false;
     });
+
+    // Navigate to the next screen
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const HomepageScreen(),
+      ),
+    );
   }
 
   @override
@@ -71,7 +89,7 @@ class _EmailInputScreenState extends State<EmailInputScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(height: 80), // khoảng trống dưới nút back
+                const SizedBox(height: 80), // Space below back button
                 const Text(
                   'WELCOME TO UNIVERSAL YOGA',
                   textAlign: TextAlign.center,
@@ -93,7 +111,6 @@ class _EmailInputScreenState extends State<EmailInputScreen> {
                   ),
                 ),
                 const SizedBox(height: 30),
-                // Trường Full Name
                 _buildTextInputField(
                   controller: _fullNameController,
                   label: 'Full name',
@@ -113,7 +130,6 @@ class _EmailInputScreenState extends State<EmailInputScreen> {
                   },
                 ),
                 const SizedBox(height: 20),
-                // Trường Email
                 _buildTextInputField(
                   controller: _emailController,
                   label: 'Email',
@@ -134,7 +150,7 @@ class _EmailInputScreenState extends State<EmailInputScreen> {
                   },
                 ),
                 const SizedBox(height: 30),
-                // Nút Get Started
+                // Get Started Button
                 SizedBox(
                   height: 45,
                   width: 160,
@@ -143,7 +159,7 @@ class _EmailInputScreenState extends State<EmailInputScreen> {
                       _validateInputs();
                       if (_nameErrorMessage.isEmpty &&
                           _emailErrorMessage.isEmpty) {
-                        _sendOtp();
+                        _getStarted();
                       }
                     },
                     style: ElevatedButton.styleFrom(
@@ -204,15 +220,15 @@ class _EmailInputScreenState extends State<EmailInputScreen> {
     required TextEditingController controller,
     required String label,
     required String hint,
-    String? errorText, // Nhận thông báo lỗi
+    String? errorText, // Get error message
     bool isRequired = false,
     bool isEmail = false,
-    required void Function(String)? onChanged, // Lắng nghe thay đổi input
+    required void Function(String)? onChanged, // Listen for input changes
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Label với dấu bắt buộc (*)
+        // Label with required (*)
         RichText(
           text: TextSpan(
             text: label,
@@ -233,15 +249,15 @@ class _EmailInputScreenState extends State<EmailInputScreen> {
           ),
         ),
         const SizedBox(height: 8),
-        // Thêm hiệu ứng shadow
+        // Add shadow effect
         Container(
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(30),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.25), // Màu sắc shadow
-                offset: const Offset(0, 4), // Độ dịch chuyển X và Y
+                color: Colors.black.withOpacity(0.25),
+                offset: const Offset(0, 4), // X and Y displacement
                 blurRadius: 4, // Độ mờ
               ),
             ],
@@ -259,10 +275,11 @@ class _EmailInputScreenState extends State<EmailInputScreen> {
                 color: Colors.grey,
               ),
               filled: true,
-              fillColor: Colors.transparent, // Background từ Container
+              fillColor: Colors.transparent,
+              // Background từ Container
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30),
-                borderSide: BorderSide.none, // Không có viền
+                borderSide: BorderSide.none,
               ),
             ),
           ),

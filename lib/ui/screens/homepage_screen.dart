@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:yinyoga_customer/models/course_model.dart';
-import 'package:yinyoga_customer/ui/screens/booking_cart.dart';
 import 'package:yinyoga_customer/ui/screens/booking_screen.dart';
-import 'package:yinyoga_customer/ui/screens/course_detail_screen.dart';
 import 'package:yinyoga_customer/ui/screens/notification_screen.dart';
 import 'package:yinyoga_customer/ui/widgets/home_content.dart';
 import 'all_courses_screen.dart';

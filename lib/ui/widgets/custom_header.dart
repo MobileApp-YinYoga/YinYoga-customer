@@ -1,14 +1,36 @@
 import 'package:flutter/material.dart';
-import 'package:yinyoga_customer/models/cart_model.dart';
 import 'package:yinyoga_customer/ui/screens/booking_cart.dart';
 import 'package:yinyoga_customer/ui/screens/welcome_screen.dart';
 import 'package:yinyoga_customer/utils/sharedPreferences.dart';
 
-class CustomHeader extends StatelessWidget implements PreferredSizeWidget {
+class CustomHeader extends StatefulWidget implements PreferredSizeWidget {
   final String title;
   final double imageHeight;
 
-  CustomHeader({required this.title, this.imageHeight = 100.0});
+  const CustomHeader({Key? key, required this.title, this.imageHeight = 100.0})
+      : super(key: key);
+
+  @override
+  _CustomHeaderState createState() => _CustomHeaderState();
+
+  @override
+  Size get preferredSize => Size.fromHeight(imageHeight);
+}
+
+class _CustomHeaderState extends State<CustomHeader> {
+  String? fullName;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadReferenceData();
+  }
+
+  Future<void> _loadReferenceData() async {
+    // Get data from SharedPreferences
+    fullName = await SharedPreferencesHelper.getData('fullName');
+    setState(() {}); // Update the UI once the data is loaded
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,11 +38,11 @@ class CustomHeader extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: Colors.transparent,
       flexibleSpace: Container(
         width: double.infinity,
-        height: imageHeight, // Dynamic height based on the passed parameter
+        height: widget.imageHeight, // Use the height from the widget
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage(
-                'assets/images/instances/flow_yoga.png'), // Background image path
+            image: AssetImage('assets/images/instances/flow_yoga.png'),
+            // Background image path
             fit: BoxFit.cover,
           ),
         ),
@@ -29,13 +51,13 @@ class CustomHeader extends StatelessWidget implements PreferredSizeWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Column(
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Hi, Liza!',
-                    style: TextStyle(
+                    fullName != null ? 'Hi, $fullName!' : 'Hi!',
+                    style: const TextStyle(
                       fontSize: 26,
                       fontFamily: 'Poppins',
                       color: Colors.white,
@@ -44,17 +66,18 @@ class CustomHeader extends StatelessWidget implements PreferredSizeWidget {
                 ],
               ),
               Row(
-                mainAxisAlignment:
-                    MainAxisAlignment.end, // Align buttons to the right
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   ElevatedButton(
                     onPressed: () {
-                      Sharedpreferences.logout().then((value) => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => WelcomeScreen(),
-                            ),
-                          ));
+                      SharedPreferencesHelper.logout().then(
+                        (value) => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const WelcomeScreen(),
+                          ),
+                        ),
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
@@ -98,8 +121,4 @@ class CustomHeader extends StatelessWidget implements PreferredSizeWidget {
       ),
     );
   }
-
-  @override
-  Size get preferredSize =>
-      Size.fromHeight(imageHeight); // Update height dynamically
 }
