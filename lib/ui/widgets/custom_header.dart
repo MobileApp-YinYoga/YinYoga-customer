@@ -36,6 +36,13 @@ class _CustomHeaderState extends State<CustomHeader> {
   Widget build(BuildContext context) {
     return AppBar(
       backgroundColor: Colors.transparent,
+      automaticallyImplyLeading: false, // Disable default back button
+      // leading: IconButton(
+      //   icon: const Icon(Icons.arrow_back, color: Colors.white),
+      //   onPressed: () {
+      //     Navigator.pop(context); // Navigate to the previous page
+      //   },
+      // ),
       flexibleSpace: Container(
         width: double.infinity,
         height: widget.imageHeight, // Use the height from the widget

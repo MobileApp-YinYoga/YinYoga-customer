@@ -6,6 +6,7 @@ import 'package:yinyoga_customer/dto/cartDTO.dart';
 import 'package:yinyoga_customer/services/cart_service.dart';
 import 'package:yinyoga_customer/ui/widgets/dialog_confirmation.dart';
 import 'package:yinyoga_customer/ui/widgets/payment_popup.dart';
+import 'package:yinyoga_customer/utils/sharedPreferences.dart';
 
 class BookingCartScreen extends StatefulWidget {
   @override
@@ -17,11 +18,18 @@ class _BookingCartScreenState extends State<BookingCartScreen> {
   Future<List<CartDTO>>? _cartItemsFuture;
   List<CartDTO> _cartItems = [];
   List<CartDTO> _bookingItems = [];
+  String userEmail = '';
 
   @override
   void initState() {
     super.initState();
     _fetchCarts();
+    _loadReferenceData();
+  }
+
+  Future<void> _loadReferenceData() async {
+    // Load data from SharedPreferences
+    userEmail = (await SharedPreferencesHelper.getData('email'))!;
   }
 
   Uint8List _base64Decode(String source) {
@@ -31,8 +39,9 @@ class _BookingCartScreenState extends State<BookingCartScreen> {
     return imageBytes;
   }
 
-  void _fetchCarts() {
-    _cartService.getUserBookings("trannq2003@gmail.com").then((cartItems) {
+  Future<void> _fetchCarts() async {
+    String? email = await SharedPreferencesHelper.getData('email');
+    _cartService.getUserBookings(email!).then((cartItems) {
       setState(() {
         _cartItems = cartItems;
       });
@@ -306,7 +315,7 @@ class _BookingCartScreenState extends State<BookingCartScreen> {
         onConfirm: () {
           _cartService
               .removeCartByInstanceId(
-                  _cartItems[index].instanceId, "trannq2003@gmail.com")
+                  _cartItems[index].instanceId, userEmail)
               .then(
             (value) {
               setState(() {

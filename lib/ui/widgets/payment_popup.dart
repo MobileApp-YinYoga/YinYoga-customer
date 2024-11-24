@@ -8,6 +8,7 @@ import 'package:yinyoga_customer/services/cart_service.dart';
 import 'package:yinyoga_customer/services/notification_service.dart';
 import 'package:yinyoga_customer/ui/widgets/dialog_success.dart';
 import 'package:yinyoga_customer/utils/mailService.dart';
+import 'package:yinyoga_customer/utils/sharedPreferences.dart';
 
 class PaymentPopup extends StatelessWidget {
   final BookingService _bookingService = BookingService();
@@ -109,8 +110,7 @@ class PaymentPopup extends StatelessWidget {
         return;
       }
 
-      String userEmail =
-          "trannq2003@gmail.com"; // Thay bằng email của người dùng
+      String userEmail = (await SharedPreferencesHelper.getData('email'))!;
       DateTime bookingDate = DateTime.now();
       String status = 'pending'; // Mặc định là pending
       double totalAmount = totalPayment;

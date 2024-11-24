@@ -7,6 +7,10 @@ import 'package:yinyoga_customer/ui/screens/course_detail_screen.dart';
 import 'package:yinyoga_customer/utils/sharedPreferences.dart';
 
 class HomeContent extends StatefulWidget {
+  final String fullName;
+
+  const HomeContent({Key? key, required this.fullName}) : super(key: key);
+
   @override
   _HomeContentState createState() => _HomeContentState();
 }
@@ -18,18 +22,13 @@ class _HomeContentState extends State<HomeContent> {
   List<TopCategoryDTO> _filteredCourses = [];
   TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
-  String? fullName;
+  late String fullName;
 
   @override
   void initState() {
     super.initState();
     _fetchTopCourses();
-    _loadReferenceData();
-  }
-
-  Future<void> _loadReferenceData() async {
-    // Get data from SharedPreferences
-    fullName = await SharedPreferencesHelper.getData('fullName');
+    fullName = widget.fullName;
   }
 
   void _fetchTopCourses() {
