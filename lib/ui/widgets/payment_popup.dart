@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:yinyoga_customer/dto/cartDTO.dart';
 import 'package:yinyoga_customer/models/booking_detail.dart';
 import 'package:yinyoga_customer/models/booking_model.dart';
@@ -6,6 +7,7 @@ import 'package:yinyoga_customer/models/notification_model.dart';
 import 'package:yinyoga_customer/services/booking_service.dart';
 import 'package:yinyoga_customer/services/cart_service.dart';
 import 'package:yinyoga_customer/services/notification_service.dart';
+import 'package:yinyoga_customer/ui/widgets/dialog_confirmation.dart';
 import 'package:yinyoga_customer/ui/widgets/dialog_success.dart';
 import 'package:yinyoga_customer/utils/mailService.dart';
 
@@ -18,10 +20,11 @@ class PaymentPopup extends StatelessWidget {
   final VoidCallback
       onSuccess; // Callback to notify parent of successful payment
 
-  PaymentPopup(
-      {required this.totalPayment,
-      required this.bookingItems,
-      required this.onSuccess});
+  PaymentPopup({
+    required this.totalPayment,
+    required this.bookingItems,
+    required this.onSuccess,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +44,7 @@ class PaymentPopup extends StatelessWidget {
                   color: Colors.black.withOpacity(0.1),
                   spreadRadius: 1,
                   blurRadius: 5,
-                  offset: Offset(0, -2), // Shadow position
+                  offset: const Offset(0, -2), // Shadow position
                 ),
               ],
             ),
@@ -74,7 +77,7 @@ class PaymentPopup extends StatelessWidget {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    _processPayment(context);
+                    _confirmPayment(context);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF6D674B),
@@ -100,19 +103,47 @@ class PaymentPopup extends StatelessWidget {
     );
   }
 
+  void _confirmPayment(BuildContext context) {
+    String className = bookingItems.isNotEmpty
+        ? bookingItems.map((cartItem) => cartItem.instanceId).join('", "')
+        : 'Unknown Class';
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => ConfirmationDialog(
+        title: 'Are you sure to payment now?',
+        content: "You are about to pay for the following classes: $className.",
+        onConfirm: () {
+          _processPayment(context);
+        },
+      ),
+    );
+  }
+
   void _processPayment(BuildContext context) async {
     try {
       if (bookingItems.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('No items selected for payment')),
+          const SnackBar(content: Text('No items selected for payment')),
         );
         return;
       }
 
+      // Show loading indicator while processing payment
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return const Center(
+            child: CircularProgressIndicator(), // Show loading spinner
+          );
+        },
+      );
+
       String userEmail =
-          "trannq2003@gmail.com"; // Thay bằng email của người dùng
+          "trannq2003@gmail.com"; // Replace with actual user email
       DateTime bookingDate = DateTime.now();
-      String status = 'pending'; // Mặc định là pending
+      String status = 'pending'; // Default status is pending
       double totalAmount = totalPayment;
 
       Booking booking = Booking(
@@ -139,18 +170,22 @@ class PaymentPopup extends StatelessWidget {
             cartItem.instanceId, userEmail);
       }
 
-      // Gọi hàm gửi email thông báo đăng ký thành công
-      MailService mailgunService = MailService();
-      String courseName = "Yoga Course"; // Tên khóa học
-      await mailgunService.sendRegistrationSuccessEmail(userEmail, courseName);
+      // Get class names for email
+      String className = bookingItems.isNotEmpty
+          ? bookingItems.map((cartItem) => cartItem.instanceId).join('", "')
+          : '';
 
-      //Lưu vào notification
+      // Send email after successful booking
+      MailService mailgunService = MailService();
+      await mailgunService.sendRegistrationSuccessEmail(userEmail, className);
+
+      // Create notification for admin
       NotificationModel notification = NotificationModel(
         id: DateTime.now().toIso8601String(),
-        email: userEmail,
+        email: "",
         title: 'Booking Successful',
         description:
-            'You have successfully registered for $courseName. Your registration is pending approval.',
+            "User $userEmail has booked a class for $className at ${DateFormat('dd/MM/yyyy HH:mm').format(bookingDate)}.",
         time: DateTime.now().toString(),
         isRead: false,
         createdDate: DateTime.now().toIso8601String(),
@@ -158,6 +193,10 @@ class PaymentPopup extends StatelessWidget {
 
       _notification.addNotification(notification);
 
+      // Close loading dialog
+      Navigator.of(context).pop();
+
+      // Show success dialog
       showDialog(
         context: context,
         builder: (BuildContext context) => CustomSuccessDialog(
@@ -165,12 +204,19 @@ class PaymentPopup extends StatelessWidget {
           content: "Check your email for confirmation",
           onConfirm: () {
             Navigator.of(context).pop();
+            // Navigate to my bookings page
+            Navigator.of(context).pushNamed('/my-bookings');
           },
         ),
       );
 
-      onSuccess(); // Notify parent of successful payment
+      // Notify parent widget that payment is successful
+      onSuccess();
     } catch (e) {
+      // Close loading dialog in case of error
+      Navigator.of(context).pop();
+
+      // Show error message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error during payment: $e')),
       );

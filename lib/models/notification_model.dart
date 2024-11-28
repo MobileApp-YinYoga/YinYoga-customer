@@ -1,7 +1,7 @@
 class NotificationModel {
   final String id;
   final String title;
-  final String email;
+  final String? email; // Allow email to be null or empty string
   final String description;
   final String time;
   final bool isRead;
@@ -10,7 +10,7 @@ class NotificationModel {
   NotificationModel({
     required this.id,
     required this.title,
-    required this.email,
+    this.email, // This is now nullable
     required this.description,
     required this.time,
     this.isRead = false,
@@ -41,7 +41,7 @@ class NotificationModel {
     return {
       'id': id,
       'title': title,
-      'email': email,
+      'email': email, // Allows null or empty
       'description': description,
       'time': time,
       'isRead': isRead,
@@ -53,7 +53,7 @@ class NotificationModel {
     return NotificationModel(
       id: map['id'],
       title: map['title'],
-      email: map['email'],
+      email: map['email'] as String?, // email is now nullable
       description: map['description'] ?? '',
       time: map['time'],
       isRead: map['isRead'],

@@ -67,11 +67,13 @@ class _BookingScreenState extends State<BookingScreen> {
       ),
       centerTitle: true,
       backgroundColor: Colors.white,
+      elevation: 1, // Remove default shadow to create a clean line appearance
       bottom: PreferredSize(
-        preferredSize: const Size.fromHeight(1.0),
+        preferredSize: const Size.fromHeight(1.0), // Height of the line
         child: Container(
-          color: const Color(0xFF6D674B),
-          height: 1.0,
+          color: const Color(0xFF6D674B), // Line color
+          width: 50,
+          height: 1.0, // Line thickness
         ),
       ),
     );
@@ -143,7 +145,8 @@ class _BookingScreenState extends State<BookingScreen> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
-      shadowColor: Colors.grey.withOpacity(0.2),
+      shadowColor: Colors.grey,
+      elevation: 4,
       child: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
@@ -161,22 +164,29 @@ class _BookingScreenState extends State<BookingScreen> {
                 },
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(80, 36),
-                  backgroundColor: Colors.white.withOpacity(0.8),
-                  foregroundColor: const Color(0xFF6D674B),
+                  backgroundColor: const Color(0xFF6D674B),
+                  foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                    side: const BorderSide(color: Colors.white),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(30),
                   ),
                 ),
-                child: Text(_isExpanded ? 'Hide Details' : 'See More'),
+                child: Text(_isExpanded ? 'Hide Details' : 'See More',
+                    style:
+                        const TextStyle(fontFamily: 'Poppins', fontSize: 12)),
               ),
             ),
             if (_isExpanded) ...[
+              const SizedBox(height: 10),
+              Container(
+                color: const Color(0xFF6D674B),
+                height: 1.0,
+              ),
               const SizedBox(height: 8),
               const Text(
                 'Booking Details:',
                 style: TextStyle(
-                  fontSize: 15,
+                  fontSize: 14,
+                  color: Color(0xFF6D674B),
                   fontWeight: FontWeight.bold,
                   fontFamily: 'Poppins',
                 ),
@@ -197,8 +207,9 @@ class _BookingScreenState extends State<BookingScreen> {
         Text(
           'Booking ID: ${booking.id}',
           style: const TextStyle(
-            fontSize: 16,
+            fontSize: 14,
             fontWeight: FontWeight.bold,
+            color: Color(0xFF6D674B),
             fontFamily: 'Poppins',
           ),
         ),
@@ -206,7 +217,8 @@ class _BookingScreenState extends State<BookingScreen> {
         Text(
           'Email: ${booking.email}',
           style: const TextStyle(
-            fontSize: 14,
+            fontSize: 12,
+            color: Color(0xFF323232),
             fontFamily: 'Poppins',
           ),
         ),
@@ -214,7 +226,8 @@ class _BookingScreenState extends State<BookingScreen> {
         Text(
           'Booking Date: ${booking.bookingDate.toLocal()}',
           style: const TextStyle(
-            fontSize: 14,
+            fontSize: 12,
+            color: Color(0xFF323232),
             fontFamily: 'Poppins',
           ),
         ),
@@ -222,7 +235,8 @@ class _BookingScreenState extends State<BookingScreen> {
         Text(
           'Status: ${booking.status}',
           style: const TextStyle(
-            fontSize: 14,
+            fontSize: 12,
+            color: Color(0xFF323232),
             fontFamily: 'Poppins',
           ),
         ),
@@ -230,7 +244,8 @@ class _BookingScreenState extends State<BookingScreen> {
         Text(
           'Total Amount: \$${booking.totalAmount.toStringAsFixed(2)}',
           style: const TextStyle(
-            fontSize: 14,
+            fontSize: 12,
+            color: Color(0xFF323232),
             fontFamily: 'Poppins',
           ),
         ),
@@ -256,7 +271,6 @@ class _BookingScreenState extends State<BookingScreen> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
       ),
-      elevation: 3,
       child: Stack(
         children: [
           GestureDetector(

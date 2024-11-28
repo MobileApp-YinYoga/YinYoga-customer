@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 
-class CustomSuccessDialog extends StatefulWidget {
+class CustomErrorDialog extends StatefulWidget {
   final String title;
   final String content;
   final VoidCallback onConfirm;
 
-  const CustomSuccessDialog({
+  const CustomErrorDialog({
     Key? key,
     required this.title,
     required this.content,
@@ -14,10 +14,10 @@ class CustomSuccessDialog extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _CustomSuccessDialogState createState() => _CustomSuccessDialogState();
+  _CustomErrorDialogState createState() => _CustomErrorDialogState();
 }
 
-class _CustomSuccessDialogState extends State<CustomSuccessDialog> {
+class _CustomErrorDialogState extends State<CustomErrorDialog> {
   @override
   void initState() {
     super.initState();
@@ -35,19 +35,17 @@ class _CustomSuccessDialogState extends State<CustomSuccessDialog> {
         borderRadius: BorderRadius.circular(12.0),
       ),
       title: const Icon(
-        Icons.check_circle,
+        Icons.error,
         size: 100,
-        color: Colors.green,
+        color: Colors.red, // Use red for error icon
       ),
       content: Column(
-        mainAxisSize: MainAxisSize.min, // Automatically adjust the height
-        crossAxisAlignment:
-            CrossAxisAlignment.center, // Align content to center
+        mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             widget.title,
             style: const TextStyle(
-              fontSize: 18,
+              fontSize: 24,
               fontWeight: FontWeight.bold,
               fontFamily: 'Poppins',
               color: Color(0xFF6D674B),
@@ -58,7 +56,7 @@ class _CustomSuccessDialogState extends State<CustomSuccessDialog> {
             widget.content,
             textAlign: TextAlign.center,
             style: const TextStyle(
-              fontSize: 14,
+              fontSize: 16,
               fontFamily: 'Poppins',
               color: Color(0xFF6D674B),
             ),

@@ -47,49 +47,58 @@ class CustomHeader extends StatelessWidget implements PreferredSizeWidget {
                 mainAxisAlignment:
                     MainAxisAlignment.end, // Align buttons to the right
                 children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      Sharedpreferences.logout().then((value) => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => WelcomeScreen(),
-                            ),
-                          ));
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 8),
-                      backgroundColor: Colors.transparent,
-                      side: const BorderSide(color: Colors.white, width: 1),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
+                  SizedBox(
+                    height: 26, // Đặt chiều cao mong muốn
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Sharedpreferences.logout()
+                            .then((value) => Navigator.push(
+                                  // ignore: use_build_context_synchronously
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => WelcomeScreen(),
+                                  ),
+                                ));
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white.withOpacity(0.4),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          side: const BorderSide(color: Colors.white),
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      child: const Text(
+                        'Logout',
+                        style: TextStyle(color: Colors.white),
                       ),
                     ),
-                    child: const Text(
-                      'Logout',
-                      style: TextStyle(color: Colors.white),
-                    ),
                   ),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => BookingCartScreen(),
+                  const SizedBox(width: 8),
+                  SizedBox(
+                    width: 35,
+                    height: 35,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => BookingCartScreen(),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.all(8),
+                        backgroundColor:
+                            Colors.transparent, 
+                        shape: const CircleBorder(), 
+                        side: BorderSide.none, 
+                      ),
+                      child: Image.asset(
+                        'assets/icons/utils/cart.png',
                         ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.all(12),
-                      backgroundColor: Colors.transparent,
-                      side: const BorderSide(color: Colors.white, width: 1),
-                      shape: const CircleBorder(),
                     ),
-                    child: const Icon(
-                      Icons.add_shopping_cart,
-                      color: Colors.white,
-                    ),
-                  ),
+                  )
                 ],
               ),
             ],

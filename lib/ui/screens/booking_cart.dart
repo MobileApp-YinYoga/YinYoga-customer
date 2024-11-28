@@ -98,13 +98,13 @@ class _BookingCartScreenState extends State<BookingCartScreen> {
           : Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(10.0),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
+                      const Spacer(),
                       SizedBox(
-                        width: 100, // Set width to 30px
-                        height: 30, // Set height to 30px
+                        width: 100,
+                        height: 30,
                         child: ElevatedButton(
                           onPressed: () {
                             setState(() {
@@ -211,15 +211,25 @@ class _BookingCartScreenState extends State<BookingCartScreen> {
                             ),
                             // Checkbox hoặc IconButton nằm bên phải
                             item.isEditing
-                                ? IconButton(
-                                    icon: const Icon(
-                                      Icons.delete_forever_rounded,
-                                      color: Colors.red,
-                                    ),
-                                    onPressed: () {
-                                      _removeItem(index);
-                                    },
-                                  )
+                                ? SizedBox(
+                                    height: 35, // Đặt chiều cao mong muốn
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        _removeItem(index);
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        padding: const EdgeInsets.all(8),
+                                        backgroundColor: Colors
+                                            .transparent, // Đặt màu nền là trong suốt
+                                        shape:
+                                            const CircleBorder(), // Giữ cho nút có hình tròn
+                                        side: BorderSide
+                                            .none, // Không có đường viền
+                                      ),
+                                      child: Image.asset(
+                                        'assets/icons/utils/delete.png', // Đảm bảo sử dụng Image.asset thay vì Image.network để truy cập file nội bộ
+                                      ),
+                                    ))
                                 : Checkbox(
                                     value: item.isSelected,
                                     onChanged: (value) {
@@ -269,24 +279,24 @@ class _BookingCartScreenState extends State<BookingCartScreen> {
           Positioned(
             bottom: 16,
             right: 16,
-            child: ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(40, 30),
-                backgroundColor:
-                    Colors.white, // Background color for the price button
-                foregroundColor: const Color(0xFF6D674B), // Text color
-                shape: RoundedRectangleBorder(
-                  side: const BorderSide(
-                      color: Color(0xFF6D674B)), // Border color
-                  borderRadius: BorderRadius.circular(12),
+            child: SizedBox(
+              height: 26, // Đặt chiều cao mong muốn
+              child: ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white.withOpacity(0.4),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    side: const BorderSide(color: Colors.white),
+                    borderRadius: BorderRadius.circular(30),
+                  ),
                 ),
-              ),
-              child: Text(
-                "${item.price ?? 0} Dollars", // Hoặc "Dolar" tùy ý bạn
-                style: const TextStyle(
-                  color: Color(0xFF6D674B), // Correct text color
-                  fontWeight: FontWeight.bold,
+                child: Text(
+                  "${item.price ?? 0} Dollars", // Hoặc "Dolar" tùy ý bạn
+                  style: const TextStyle(
+                    color: Colors.white, // Correct text color
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
@@ -301,7 +311,7 @@ class _BookingCartScreenState extends State<BookingCartScreen> {
       context: context,
       builder: (BuildContext context) => ConfirmationDialog(
         title:
-            'Are you sure you want to remove class ${_cartItems[index].instanceId}?',
+            'Are you sure to remove class ${_cartItems[index].instanceId}?',
         content: "You won't be able to revert this!",
         onConfirm: () {
           _cartService
@@ -324,7 +334,7 @@ class _BookingCartScreenState extends State<BookingCartScreen> {
     final isEditing = _cartItems.any((item) => item.isEditing);
     return Icon(
       isEditing ? Icons.edit : Icons.delete,
-      color: Color(0xFF6D674B),
+      color: const Color(0xFF6D674B),
     );
   }
 }

@@ -136,9 +136,9 @@ class _HomeContentState extends State<HomeContent> {
                                 course.courseId,
                                 course.classType,
                                 course.imageUrl,
-                                course.numberOfClassInstances > 1
-                                    ? '${course.numberOfClassInstances} classes'
-                                    : '${course.numberOfClassInstances} class',
+                                course.numberOfCourses > 1
+                                    ? '${course.numberOfCourses} courses'
+                                    : '${course.numberOfCourses} course',
                               );
                             }).toList(),
                           ),

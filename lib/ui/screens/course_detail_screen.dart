@@ -8,6 +8,7 @@ import 'package:yinyoga_customer/models/course_model.dart';
 import 'package:yinyoga_customer/services/cart_service.dart';
 import 'package:yinyoga_customer/services/class_instance.dart';
 import 'package:yinyoga_customer/ui/screens/booking_cart.dart';
+import 'package:yinyoga_customer/ui/widgets/dialog_error.dart';
 import 'package:yinyoga_customer/ui/widgets/dialog_success.dart';
 
 class CourseDetailsScreen extends StatefulWidget {
@@ -264,8 +265,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
           Positioned(
             top: 16,
             right: 16,
-            child: IconButton(
-              icon: const Icon(Icons.add_shopping_cart, color: Colors.white),
+            child: ElevatedButton(
               onPressed: () {
                 // Handle favorite action
                 try {
@@ -300,7 +300,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                         showDialog(
                           context: context,
                           builder: (context) {
-                            return CustomSuccessDialog(
+                            return CustomErrorDialog(
                               title: 'Add to cart failed',
                               content: 'This class is already in your cart.',
                               onConfirm: () {
@@ -316,6 +316,32 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                   debugPrint('Error: $e');
                 }
               },
+              child: SizedBox(
+                width: 35,
+                height: 35,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => BookingCartScreen(),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.all(8),
+                    backgroundColor:
+                        Colors.transparent, // Remove background color
+                    shape: const CircleBorder(), // Ensure it's circular
+                    side: BorderSide.none, // Remove the white border
+                  ),
+                  child: Image.asset(
+                    'assets/icons/utils/cart.png',
+                    width: 35,
+                    height: 35,
+                  ),
+                ),
+              ),
             ),
           ),
           Padding(
@@ -360,8 +386,8 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                 // Handle booking action
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white.withOpacity(0.8),
-                foregroundColor: const Color(0xFF6D674B),
+                backgroundColor: Colors.white.withOpacity(0.6),
+                foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   side: const BorderSide(color: Colors.white),
                   borderRadius: BorderRadius.circular(12),

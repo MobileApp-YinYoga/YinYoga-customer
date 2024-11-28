@@ -78,24 +78,23 @@ class CourseRepository {
               courseType.toLowerCase().replaceAll(' ', '_');
           imageUrl = "$formattedClassType.png";
         }
-        print("courseId: $courseId");
 
-        //conver to int courseId
-        int id = int.parse(courseId);
-        // Count number of class instances associated with the course
-        QuerySnapshot classInstanceSnapshot = await _firestore
-            .collection('classInstances')
-            .where('courseId', isEqualTo: id)
+        // Count number of course associated with the course
+        QuerySnapshot coursesSnapshot = await _firestore
+            .collection('courses')
+            .where('courseType', isEqualTo: courseType)
             .get();
 
-        int numberOfClassInstances = classInstanceSnapshot.docs.length;
+        print("Length: ${coursesSnapshot.docs.length}");
+
+        int numberOfCourses = coursesSnapshot.docs.length;
 
         // Create DTO object for the course
         TopCategoryDTO topCourse = TopCategoryDTO(
           courseId: courseId,
           courseName: courseName,
           imageUrl: imageUrl,
-          numberOfClassInstances: numberOfClassInstances, // Updated count
+          numberOfCourses: numberOfCourses, // Updated count
           classType: courseType,
         );
 

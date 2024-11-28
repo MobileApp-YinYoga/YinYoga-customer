@@ -6,7 +6,7 @@ import 'package:yinyoga_customer/ui/screens/course_detail_screen.dart';
 import 'package:yinyoga_customer/ui/screens/notification_screen.dart';
 import 'package:yinyoga_customer/ui/widgets/home_content.dart';
 import 'all_courses_screen.dart';
-import 'profile_screen.dart';
+import 'helpCenter_screen.dart';
 import '../widgets/custom_header.dart';
 import '../widgets/custom_footer.dart';
 
@@ -26,7 +26,7 @@ class _HomepageScreenState extends State<HomepageScreen> {
     BookingScreen(userEmail: 'trannq2003@gmail.com'),
     HomeContent(),
     NotificationsScreen(),
-    ProfileScreen(),
+    HelpCenterScreen(),
   ];
 
   void _onItemTapped(int index) {
