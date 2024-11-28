@@ -5,6 +5,7 @@ import 'package:yinyoga_customer/models/cart_model.dart';
 import 'package:yinyoga_customer/models/notification_model.dart';
 import 'package:yinyoga_customer/services/notification_service.dart';
 import 'package:yinyoga_customer/ui/screens/booking_screen.dart';
+import 'package:yinyoga_customer/utils/sharedPreferences.dart';
 
 class NotificationsScreen extends StatefulWidget {
   @override
@@ -16,11 +17,18 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   List<NotificationModel> newNotifications = [];
   List<NotificationModel> oldNotifications = [];
   bool _isLoading = true;
+  String userEmail = '';
 
   @override
   void initState() {
     super.initState();
     _fetchNotifications();
+    _loadReferenceData();
+  }
+
+  Future<void> _loadReferenceData() async {
+    // Load data from SharedPreferences
+    userEmail = (await SharedPreferencesHelper.getData('email'))!;
   }
 
   Future<void> _fetchNotifications() async {
@@ -62,6 +70,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false, // Disable default back button
         title: const Text(
           'Notifications',
           style: TextStyle(
@@ -73,7 +82,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
-        elevation: 1, // Remove default shadow to create a clean line appearance
+        elevation: 1,
+        // Remove default shadow to create a clean line appearance
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1.0), // Height of the line
           child: Container(
@@ -205,7 +215,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               context,
               MaterialPageRoute(
                 builder: (context) => BookingScreen(
-                  userEmail: 'trannq2003@gmail.com',
+                  userEmail: userEmail,
                 ),
               ),
             );

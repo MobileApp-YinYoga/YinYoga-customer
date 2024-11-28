@@ -8,7 +8,7 @@ import 'package:yinyoga_customer/services/booking_service.dart';
 class BookingScreen extends StatefulWidget {
   final String userEmail;
 
-  BookingScreen({required this.userEmail});
+  const BookingScreen({Key? key, required this.userEmail}) : super(key: key);
 
   @override
   _BookingScreenState createState() => _BookingScreenState();
@@ -56,6 +56,7 @@ class _BookingScreenState extends State<BookingScreen> {
 
   AppBar _buildAppBar() {
     return AppBar(
+      automaticallyImplyLeading: false, // Disable default back button
       title: const Text(
         'My Booking',
         style: TextStyle(

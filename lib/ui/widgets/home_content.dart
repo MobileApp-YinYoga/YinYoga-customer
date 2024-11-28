@@ -4,8 +4,13 @@ import 'package:yinyoga_customer/models/course_model.dart';
 import 'package:yinyoga_customer/services/course_service.dart';
 import 'package:yinyoga_customer/ui/screens/all_courses_screen.dart';
 import 'package:yinyoga_customer/ui/screens/course_detail_screen.dart';
+import 'package:yinyoga_customer/utils/sharedPreferences.dart';
 
 class HomeContent extends StatefulWidget {
+  final String fullName;
+
+  const HomeContent({Key? key, required this.fullName}) : super(key: key);
+
   @override
   _HomeContentState createState() => _HomeContentState();
 }
@@ -17,11 +22,13 @@ class _HomeContentState extends State<HomeContent> {
   List<TopCategoryDTO> _filteredCourses = [];
   TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  late String fullName;
 
   @override
   void initState() {
     super.initState();
     _fetchTopCourses();
+    fullName = widget.fullName;
   }
 
   void _fetchTopCourses() {
@@ -72,21 +79,21 @@ class _HomeContentState extends State<HomeContent> {
                       fit: BoxFit.cover,
                     ),
                   ),
-                  child: const Padding(
-                    padding: EdgeInsets.only(left: 20, top: 30),
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 20, top: 30),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Hi, Liza!',
-                          style: TextStyle(
+                          fullName != null ? 'Hi, $fullName!' : 'Hi!',
+                          style: const TextStyle(
                             fontSize: 26,
                             fontFamily: 'Poppins',
                             color: Colors.white,
                           ),
                         ),
-                        SizedBox(height: 4),
-                        Text(
+                        const SizedBox(height: 4),
+                        const Text(
                           'What type of yoga do you want to practice today?',
                           style: TextStyle(
                             fontSize: 14,
@@ -312,8 +319,8 @@ class _HomeContentState extends State<HomeContent> {
     );
   }
 
-  Widget _buildCourseCard(
-      String courseId, String classType, String imagePath, String numberOfClasses) {
+  Widget _buildCourseCard(String courseId, String classType, String imagePath,
+      String numberOfClasses) {
     return FutureBuilder<Course>(
       future: _courseService
           .getCourseById(courseId), // Fetch the course data asynchronously

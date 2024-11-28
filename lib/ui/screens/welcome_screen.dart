@@ -1,21 +1,54 @@
 import 'package:flutter/material.dart';
-import 'package:yinyoga_customer/ui/widgets/email_input_screen.dart';
-import 'homepage_screen.dart'; // Thay bằng file của màn hình tiếp theo
+import 'package:yinyoga_customer/ui/screens/email_input_screen.dart';
+import 'package:yinyoga_customer/ui/screens/homepage_screen.dart';
+import 'package:yinyoga_customer/utils/sharedPreferences.dart';
 
-class WelcomeScreen extends StatelessWidget {
+class WelcomeScreen extends StatefulWidget {
+  const WelcomeScreen({super.key});
+
+  @override
+  _WelcomeScreenState createState() => _WelcomeScreenState();
+}
+
+class _WelcomeScreenState extends State<WelcomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _loadReferenceData();
+  }
+
+  Future<void> _loadReferenceData() async {
+    // Get data from SharedPreferences
+    String? fullName = await SharedPreferencesHelper.getData('fullName');
+    String? email = await SharedPreferencesHelper.getData('email');
+
+    if (fullName != null && email != null) {
+      print('User logged in: $fullName, $email');
+      // Navigate to Home Screen
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const HomepageScreen(),
+        ),
+      );
+    } else {
+      print('User not logged in.');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          // Hình ảnh nền
+          // Background image
           Positioned.fill(
             child: Image.asset(
-              'assets/images/background/welcome_image.png', // Đường dẫn tới ảnh
-              fit: BoxFit.cover, // Đảm bảo ảnh phủ đầy màn hình
+              'assets/images/background/welcome_image.png',
+              fit: BoxFit.cover, // Make sure the image fills the screen
             ),
           ),
-          // Nội dung phía trên hình ảnh
+          // Content above image
           Positioned.fill(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -27,12 +60,12 @@ class WelcomeScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => EmailInputScreen()),
+                            builder: (context) => const EmailInputScreen()),
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white, // Màu nền của nút
-                      foregroundColor: Colors.black, // Màu chữ
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30.0),
                       ),
@@ -42,7 +75,8 @@ class WelcomeScreen extends StatelessWidget {
                     child: const Text('Get Started'),
                   ),
                 ),
-                const SizedBox(height: 50), // Khoảng cách giữa nút và cuối màn hình
+                const SizedBox(height: 50),
+                // Distance between button and bottom of screen
               ],
             ),
           ),

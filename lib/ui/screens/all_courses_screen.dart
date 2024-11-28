@@ -7,7 +7,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 class AllCoursesScreen extends StatefulWidget {
-  String title; // Đảm bảo truyền vào title
+  String title;
 
   AllCoursesScreen({required this.title});
 
@@ -110,6 +110,7 @@ class _AllCoursesScreenState extends State<AllCoursesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false, // Disable default back button
         title: Text(
           widget.title,
           style: const TextStyle(

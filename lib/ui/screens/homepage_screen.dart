@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:yinyoga_customer/models/course_model.dart';
-import 'package:yinyoga_customer/ui/screens/booking_cart.dart';
 import 'package:yinyoga_customer/ui/screens/booking_screen.dart';
-import 'package:yinyoga_customer/ui/screens/course_detail_screen.dart';
 import 'package:yinyoga_customer/ui/screens/notification_screen.dart';
 import 'package:yinyoga_customer/ui/widgets/home_content.dart';
+import 'package:yinyoga_customer/utils/sharedPreferences.dart';
 import 'all_courses_screen.dart';
 import 'helpCenter_screen.dart';
 import '../widgets/custom_header.dart';
@@ -19,15 +17,30 @@ class HomepageScreen extends StatefulWidget {
 
 class _HomepageScreenState extends State<HomepageScreen> {
   int _selectedIndex = 2;
+  late List<Widget> _pages;
 
-  // dữ liệu mẫu cho 1 course
-  final List<Widget> _pages = [
-    AllCoursesScreen(title: 'All courses'),
-    BookingScreen(userEmail: 'trannq2003@gmail.com'),
-    HomeContent(),
-    NotificationsScreen(),
-    HelpCenterScreen(),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _loadReferenceData();
+  }
+
+  Future<void> _loadReferenceData() async {
+    // Load data from SharedPreferences
+    String email = (await SharedPreferencesHelper.getData('email'))!;
+    String fullName = (await SharedPreferencesHelper.getData('fullName'))!;
+
+    // Initialize `_pages` after `email` is loaded
+    setState(() {
+      _pages = [
+        AllCoursesScreen(title: 'All courses'),
+        BookingScreen(userEmail: email),
+        HomeContent(fullName: fullName),
+        NotificationsScreen(),
+        HelpCenterScreen(),
+      ];
+    });
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -37,10 +50,13 @@ class _HomepageScreenState extends State<HomepageScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Show a loading indicator until `_pages` is initialized
+    if (_pages == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return Scaffold(
-      appBar: _selectedIndex != 2
-          ? CustomHeader(title: 'Home page')
-          : null,
+      appBar: _selectedIndex != 2 ? CustomHeader(title: 'Home page') : null,
       body: _pages[_selectedIndex],
       bottomNavigationBar: CustomFooter(
         currentIndex: _selectedIndex,

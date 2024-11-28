@@ -10,6 +10,7 @@ import 'package:yinyoga_customer/services/class_instance.dart';
 import 'package:yinyoga_customer/ui/screens/booking_cart.dart';
 import 'package:yinyoga_customer/ui/widgets/dialog_error.dart';
 import 'package:yinyoga_customer/ui/widgets/dialog_success.dart';
+import 'package:yinyoga_customer/utils/sharedPreferences.dart';
 
 class CourseDetailsScreen extends StatefulWidget {
   final Course course;
@@ -21,14 +22,23 @@ class CourseDetailsScreen extends StatefulWidget {
 }
 
 class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
+  TextEditingController _searchController = TextEditingController();
   final ClassInstanceService _classInstances = ClassInstanceService();
   final CartService _cartService = CartService();
   late Future<List<ClassInstance>> _classInstancesFuture;
+  String _searchQuery = '';
+  String userEmail = '';
 
   @override
   void initState() {
     super.initState();
     _fetchClassInstances(); // Fetch class instances when the screen is loaded
+    _loadReferenceData();
+  }
+
+  Future<void> _loadReferenceData() async {
+    // Load data from SharedPreferences
+    userEmail = (await SharedPreferencesHelper.getData('email'))!;
   }
 
   void _fetchClassInstances() {
@@ -41,6 +51,22 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
     cleanBase64 = cleanBase64.replaceAll(RegExp(r'\s+'), '');
     Uint8List imageBytes = base64Decode(cleanBase64);
     return imageBytes;
+  }
+
+  void _handleSearch(String query) {
+    setState(() {
+      _searchQuery = query;
+    });
+  }
+
+  List<ClassInstance> _searchClassInstance(List<ClassInstance> classInstances) {
+    // Apply search filtering
+    List<ClassInstance> filteredClassInstances = classInstances.where((classInstance) {
+      return _searchQuery.isEmpty ||
+          classInstance.id!.toLowerCase().contains(_searchQuery.toLowerCase());
+    }).toList();
+
+    return filteredClassInstances;
   }
 
   @override
@@ -58,7 +84,8 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
-        elevation: 1, // Remove default shadow to create a clean line appearance
+        elevation: 1,
+        // Remove default shadow to create a clean line appearance
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1.0), // Height of the line
           child: Container(
@@ -87,7 +114,8 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                             fit: BoxFit.cover,
                           )
                         : Image.asset(
-                            'assets/images/courses/default_image.png', // Default image when base64 string is empty
+                            'assets/images/courses/default_image.png',
+                            // Default image when base64 string is empty
                             height: 150,
                             width: double.infinity,
                             fit: BoxFit.cover,
@@ -178,6 +206,10 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20.0),
+                    child: _buildSearchBar(context),
+                  ),
                   const Text(
                     'Class Instances',
                     style: TextStyle(
@@ -198,7 +230,9 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                         return const Center(
                             child: Text('No class instances available.'));
                       } else {
-                        List<ClassInstance> classInstances = snapshot.data!;
+                        // List<ClassInstance> classInstances = snapshot.data!;
+                        List<ClassInstance> classInstances = _searchClassInstance(snapshot.data!);
+
                         return Column(
                           children: classInstances.map((classInstance) {
                             return _buildClassInstance(context, classInstance);
@@ -215,6 +249,61 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
       ),
     );
   }
+
+  Widget _buildSearchBar(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Container(
+            height: 50,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(30),
+              border: Border.all(color: const Color(0xFF6D674B)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.2),
+                  spreadRadius: 2,
+                  blurRadius: 5,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.search, color: Colors.grey, size: 24),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: _handleSearch,
+                    decoration: InputDecoration(
+                      hintText: 'Search for course name...',
+                      border: InputBorder.none,
+                      hintStyle: TextStyle(
+                        fontFamily: 'Poppins',
+                        color: Colors.grey[400],
+                      ),
+                    ),
+                  ),
+                ),
+                if (_searchController.text.isNotEmpty)
+                  GestureDetector(
+                    onTap: () {
+                      _searchController.clear();
+                      _handleSearch(''); // Reset search
+                    },
+                    child: const Icon(Icons.close, color: Colors.grey, size: 24),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
 
   Widget _buildClassInstance(
       BuildContext context, ClassInstance classInstance) {
@@ -247,7 +336,8 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                     fit: BoxFit.cover,
                   )
                 : Image.asset(
-                    'assets/images/courses/default_image.png', // Default image when base64 string is empty
+                    'assets/images/courses/default_image.png',
+                    // Default image when base64 string is empty
                     height: 150,
                     width: double.infinity,
                     fit: BoxFit.cover,
@@ -269,9 +359,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
               onPressed: () {
                 // Handle favorite action
                 try {
-                  _cartService
-                      .addToCart(classInstance.id!, 'trannq2003@gmail.com')
-                      .then(
+                  _cartService.addToCart(classInstance.id!, userEmail).then(
                     (value) {
                       if (value == 'Class added to cart successfully.' &&
                           value != 'Error') {
