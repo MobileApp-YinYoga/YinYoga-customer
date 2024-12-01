@@ -2,11 +2,11 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class MailService {
-  Future<String> sendEmail(String toEmail) async {
+  Future<String> sendEmail(String toEmail, String otp) async {
     String _otp = '';
 
     final url = Uri.parse(
-        'http://192.168.31.139:3000/send-opt'); 
+        'http://10.26.8.176:3000/send-opt'); 
     try {
       final response = await http.post(
         url,
@@ -32,7 +32,7 @@ class MailService {
   Future<void> sendRegistrationSuccessEmail(
       String toEmail, String courseName) async {
     final url = Uri.parse(
-        'http://192.168.31.139:3000/send-registration-success');
+        'http://10.26.8.176:3000/send-registration-success');
 
     try {
       print("MailgunService: Sending registration email to $toEmail - $courseName");

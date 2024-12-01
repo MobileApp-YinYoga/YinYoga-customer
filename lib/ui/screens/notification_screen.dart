@@ -37,32 +37,44 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       List<NotificationModel> notifications =
           await _notificationService.getNotifications();
 
+      // Print notifications with id, title, description, time, isRead
+      for (var notification in notifications) {
+        print(
+            'Notification: ${notification.id}, ${notification.title}, ${notification.description}, ${notification.time}, ${notification.isRead}');
+      }
+
       DateTime today = DateTime.now();
 
-      setState(() {
-        newNotifications = notifications.where((notif) {
-          // Check if the notification is from today
-          DateTime time = DateTime.parse(notif.time);
-          return time.year == today.year &&
-              time.month == today.month &&
-              time.day == today.day;
-        }).toList();
+      // Only call setState if the widget is still mounted
+      if (mounted) {
+        setState(() {
+          newNotifications = notifications.where((notif) {
+            // Check if the notification is from today
+            DateTime time = DateTime.parse(notif.time);
+            return time.year == today.year &&
+                time.month == today.month &&
+                time.day == today.day;
+          }).toList();
 
-        oldNotifications = notifications.where((notif) {
-          // Check if the notification is not from today
-          DateTime time = DateTime.parse(notif.time);
-          return !(time.year == today.year &&
-              time.month == today.month &&
-              time.day == today.day);
-        }).toList();
+          oldNotifications = notifications.where((notif) {
+            // Check if the notification is not from today
+            DateTime time = DateTime.parse(notif.time);
+            return !(time.year == today.year &&
+                time.month == today.month &&
+                time.day == today.day);
+          }).toList();
 
-        _isLoading = false;
-      });
+          _isLoading = false;
+        });
+      }
     } catch (e) {
       print('Error fetching notifications: $e');
-      setState(() {
-        _isLoading = false;
-      });
+      // Only call setState if the widget is still mounted
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 

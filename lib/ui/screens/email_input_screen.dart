@@ -1,6 +1,10 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:yinyoga_customer/ui/screens/homepage_screen.dart';
 import 'package:yinyoga_customer/ui/screens/otp_verification_screen.dart';
+import 'package:yinyoga_customer/ui/widgets/dialog_success.dart';
+import 'package:yinyoga_customer/utils/mailService.dart';
 import 'package:yinyoga_customer/utils/sharedPreferences.dart';
 
 class EmailInputScreen extends StatefulWidget {
@@ -49,25 +53,62 @@ class _EmailInputScreenState extends State<EmailInputScreen> {
     setState(() {
       _isLoading = true;
     });
+
     String fullName = _fullNameController.text;
     String email = _emailController.text;
 
     SharedPreferencesHelper.saveData('fullName', fullName);
     SharedPreferencesHelper.saveData('email', email);
 
-    // await Future.delayed(const Duration(seconds: 2)); // Fake delay
+    // Generate a random 6-digit OTP
+    String otp = _generateOtp();
+
+    // Send OTP to the user's email and check if it was sent successfully
+    String isOtpSent = await MailService().sendEmail(email, otp);
+
     setState(() {
       _isLoading = false;
     });
 
-    // Navigate to OtpVerificationScreen
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => OtpVerificationScreen(email: email, otp: '123456'),
-      ),
-    );
-    
+    print("isOtpSent: $isOtpSent");
+
+    if (isOtpSent != '') {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) => CustomSuccessDialog(
+                title: 'Success',
+                content: 'OTP verified successfully!',
+                onConfirm: () {
+                  // Navigate to OtpVerificationScreen with the generated OTP
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          OtpVerificationScreen(email: email, otp: isOtpSent),
+                    ),
+                  );
+                },
+              ));
+    } else {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) => CustomSuccessDialog(
+          title: 'Error',
+          content: 'Failed to send OTP. Please try again.',
+          onConfirm: () {
+            Navigator.pop(context);
+          },
+        ),
+      );
+    }
+  }
+
+  // Function to generate a random 6-digit OTP
+  String _generateOtp() {
+    Random random = Random();
+    int otp = 100000 +
+        random.nextInt(900000); // Generates a number between 100000 and 999999
+    return otp.toString();
   }
 
   @override

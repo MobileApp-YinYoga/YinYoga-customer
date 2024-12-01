@@ -1,5 +1,5 @@
 class NotificationModel {
-  final String id;
+  final String? id;
   final String title;
   final String? email; // Allow email to be null or empty string
   final String description;
@@ -8,7 +8,7 @@ class NotificationModel {
   final String createdDate;
 
   NotificationModel({
-    required this.id,
+    this.id,
     required this.title,
     this.email, // This is now nullable
     required this.description,

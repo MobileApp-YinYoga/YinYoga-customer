@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class FirestoreService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  /// Xóa tất cả các document trong một collection.
   Future<void> deleteCollection(String collectionName) async {
     try {
       QuerySnapshot snapshot = await _firestore.collection(collectionName).get();
@@ -16,7 +15,6 @@ class FirestoreService {
     }
   }
 
-  // Create a document and return the document reference
   Future<DocumentReference> createDocument(
       String collectionName, Map<String, dynamic> data) async {
     try {
@@ -28,16 +26,13 @@ class FirestoreService {
     }
   }
 
-  /// Cập nhật hoặc tạo lại một bảng (collection) với dữ liệu mới.
   Future<void> updateOrCreateCollection(
     String collectionName,
     List<Map<String, dynamic>> newDocuments,
   ) async {
     try {
-      // Xóa collection trước
       await deleteCollection(collectionName);
 
-      // Thêm dữ liệu mới
       for (var document in newDocuments) {
         await _firestore.collection(collectionName).add(document);
       }

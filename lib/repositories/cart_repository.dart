@@ -7,31 +7,25 @@ import 'package:yinyoga_customer/models/course_model.dart';
 class CartRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Fetch all bookings by user's email
   Future<List<CartDTO>> fetchUserBookings(String userEmail) async {
     try {
-      // Fetch all carts (bookings) for the given user email
       QuerySnapshot snapshot = await _firestore
           .collection('carts')
           .where('email', isEqualTo: userEmail)
           .get();
 
-      // Loop through each cart document and map to CartDTO
       List<CartDTO> cartItems = [];
 
-      // Collect all instanceIds from the carts for the user
       List<String> instanceIds = snapshot.docs
           .map((doc) => doc['instanceId']
-              .toString()) // Ensure instanceId is treated as a string
+              .toString()) 
           .toList();
 
       for (var instanceId in instanceIds) {
-        // Fetch classInstance details using the instanceId
         DocumentSnapshot classInstanceSnapshot =
             await _firestore.collection('classInstances').doc(instanceId).get();
 
         if (classInstanceSnapshot.exists) {
-          // Fetch course details using courseId
           dynamic courseId = classInstanceSnapshot['courseId'];
           String courseIdString =
               courseId.toString(); // Convert courseId to string
@@ -67,7 +61,6 @@ class CartRepository {
     }
   }
 
-  // Add a new booking to the cart
   Future<String> addToCart(String instanceId, String email) async {
     try {
       // check if the instanceId is already in the cart

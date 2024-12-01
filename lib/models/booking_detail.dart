@@ -1,8 +1,8 @@
 class BookingDetail {
   final String? id;
-  final String bookingId; // Liên kết với Booking
-  final String instanceId; // Liên kết với ClassInstance
-  final double price; // Giá của lớp học
+  final String bookingId; 
+  final String instanceId;
+  final double price;
 
   // Constructor
   BookingDetail({

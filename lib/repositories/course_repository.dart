@@ -33,20 +33,8 @@ class CourseRepository {
       QuerySnapshot snapshot = await _firestore.collection('courses').get();
 
       List<Course> courses = snapshot.docs.map((doc) {
-        // Tạo đối tượng Course từ dữ liệu Firestore
         final course =
             Course.fromMap(doc.data() as Map<String, dynamic>, doc.id);
-
-        // Nếu có dữ liệu base64, giải mã và lưu hình ảnh
-        // if (course.imageUrl.isNotEmpty) {
-        //   String cleanBase64 = course.imageUrl.contains(',')
-        //       ? course.imageUrl.split(',').last
-        //       : course.imageUrl;
-        //   cleanBase64 = cleanBase64.replaceAll(RegExp(r'\s+'), '');
-        //   Uint8List imageBytes = base64Decode(cleanBase64);
-        //   print(imageBytes);
-        // }
-
         return course;
       }).toList();
 
@@ -59,19 +47,16 @@ class CourseRepository {
 
   Future<List<TopCategoryDTO>> fetchTopCourses() async {
     try {
-      // Fetch all courses
       QuerySnapshot courseSnapshot =
           await _firestore.collection('courses').get();
 
       List<TopCategoryDTO> topCourses = [];
 
-      // Iterate through each course document and prepare DTO objects
       for (var courseDoc in courseSnapshot.docs) {
         String courseId = courseDoc.id;
         String courseName = courseDoc['courseName'] ?? 'Unknown Course';
         String courseType = courseDoc['courseType'] ?? 'Unknown Type';
 
-        // Default image handling
         String imageUrl = "category_default.png"; // Default image if not found
         if (courseType.isNotEmpty) {
           String formattedClassType =
@@ -79,7 +64,6 @@ class CourseRepository {
           imageUrl = "$formattedClassType.png";
         }
 
-        // Count number of course associated with the course
         QuerySnapshot coursesSnapshot = await _firestore
             .collection('courses')
             .where('courseType', isEqualTo: courseType)
@@ -98,7 +82,6 @@ class CourseRepository {
           classType: courseType,
         );
 
-        // Add the course to the list
         topCourses.add(topCourse);
       }
 
@@ -111,11 +94,10 @@ class CourseRepository {
 
   Future<List<Course>> fetchNewCourses() async {
     try {
-      // Lấy 5 khóa học mới nhất dựa trên `createdAt`
       QuerySnapshot snapshot = await _firestore
           .collection('courses')
           .orderBy('createdAt',
-              descending: true) // Sắp xếp theo ngày tạo mới nhất
+              descending: true) 
           .limit(5)
           .get();
 

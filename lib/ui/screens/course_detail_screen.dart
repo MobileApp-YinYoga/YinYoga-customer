@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:transparent_image_button/transparent_image_button.dart';
 import 'package:yinyoga_customer/models/class_instance_model.dart';
 import 'package:yinyoga_customer/models/course_model.dart';
 import 'package:yinyoga_customer/services/cart_service.dart';
@@ -61,7 +62,8 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
 
   List<ClassInstance> _searchClassInstance(List<ClassInstance> classInstances) {
     // Apply search filtering
-    List<ClassInstance> filteredClassInstances = classInstances.where((classInstance) {
+    List<ClassInstance> filteredClassInstances =
+        classInstances.where((classInstance) {
       return _searchQuery.isEmpty ||
           classInstance.id!.toLowerCase().contains(_searchQuery.toLowerCase());
     }).toList();
@@ -200,8 +202,8 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              const Divider(color: Color(0xFF6D674B), thickness: 2),
-              const SizedBox(height: 16),
+              // const Divider(color: Color(0xFF6D674B), thickness: 2),
+              // const SizedBox(height: 16),
               // Class Instances Section
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -231,7 +233,8 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                             child: Text('No class instances available.'));
                       } else {
                         // List<ClassInstance> classInstances = snapshot.data!;
-                        List<ClassInstance> classInstances = _searchClassInstance(snapshot.data!);
+                        List<ClassInstance> classInstances =
+                            _searchClassInstance(snapshot.data!);
 
                         return Column(
                           children: classInstances.map((classInstance) {
@@ -254,56 +257,73 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
     return Row(
       children: [
         Expanded(
-          child: Container(
-            height: 50,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(30),
-              border: Border.all(color: const Color(0xFF6D674B)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.2),
-                  spreadRadius: 2,
-                  blurRadius: 5,
-                  offset: const Offset(0, 3),
+          child: Stack(
+            children: [
+              const Positioned(
+                top:
+                    20,
+                left: 0,
+                right: 0,
+                child:  Divider(
+                  color: Color(0xFF6D674B),
+                  thickness: 2,
                 ),
-              ],
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.search, color: Colors.grey, size: 24),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextField(
-                    controller: _searchController,
-                    onChanged: _handleSearch,
-                    decoration: InputDecoration(
-                      hintText: 'Search for course name...',
-                      border: InputBorder.none,
-                      hintStyle: TextStyle(
-                        fontFamily: 'Poppins',
-                        color: Colors.grey[400],
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 20.0, left: 10),
+                child: Container(
+                  height: 50,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(30),
+                    border: Border.all(color: const Color(0xFF6D674B)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.2),
+                        spreadRadius: 2,
+                        blurRadius: 5,
+                        offset: const Offset(0, 3),
                       ),
-                    ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.search, color: Colors.grey, size: 24),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: TextField(
+                          controller: _searchController,
+                          onChanged: _handleSearch,
+                          decoration: InputDecoration(
+                            hintText: 'Search for class instance...',
+                            border: InputBorder.none,
+                            hintStyle: TextStyle(
+                              fontFamily: 'Poppins',
+                              color: Colors.grey[400],
+                            ),
+                          ),
+                        ),
+                      ),
+                      if (_searchController.text.isNotEmpty)
+                        GestureDetector(
+                          onTap: () {
+                            _searchController.clear();
+                            _handleSearch(''); // Reset search
+                          },
+                          child: const Icon(Icons.close,
+                              color: Colors.grey, size: 24),
+                        ),
+                    ],
                   ),
                 ),
-                if (_searchController.text.isNotEmpty)
-                  GestureDetector(
-                    onTap: () {
-                      _searchController.clear();
-                      _handleSearch(''); // Reset search
-                    },
-                    child: const Icon(Icons.close, color: Colors.grey, size: 24),
-                  ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ],
     );
   }
-
 
   Widget _buildClassInstance(
       BuildContext context, ClassInstance classInstance) {
@@ -402,32 +422,25 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                   );
                 } catch (e) {
                   debugPrint('Error: $e');
+                } finally {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BookingCartScreen(),
+                    ),
+                  );
                 }
               },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+              ),
               child: SizedBox(
-                width: 35,
-                height: 35,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => BookingCartScreen(),
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.all(8),
-                    backgroundColor:
-                        Colors.transparent, // Remove background color
-                    shape: const CircleBorder(), // Ensure it's circular
-                    side: BorderSide.none, // Remove the white border
-                  ),
-                  child: Image.asset(
-                    'assets/icons/utils/cart.png',
-                    width: 35,
-                    height: 35,
-                  ),
+                width: 25,
+                height: 25,
+                child: Image.asset(
+                  'assets/icons/utils/cart.png',
+                  width: 35,
+                  height: 35,
                 ),
               ),
             ),
@@ -439,7 +452,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Text(
-                  instanceId!,
+                  instanceId,
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,

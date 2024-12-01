@@ -6,6 +6,7 @@ class OtpVerificationScreen extends StatefulWidget {
   final String email;
   final String otp;
 
+
   OtpVerificationScreen({required this.email, required this.otp});
 
   @override

@@ -1,6 +1,6 @@
 class Cart {
   final String? id;
-  final String instanceId; // Liên kết với `ClassInstance`
+  final String instanceId; 
   final String email;
   final DateTime createdDate;
 

@@ -1,9 +1,9 @@
 class Booking {
   final String? id;
-  final String email; // Email người dùng
-  final DateTime bookingDate; // Ngày đặt
-  final String status; // Trạng thái (confirmed, pending, etc.)
-  final double totalAmount; // Tổng tiền cho tất cả lớp học trong booking
+  final String email;
+  final DateTime bookingDate;
+  final String status; 
+  final double totalAmount; 
 
   Booking({
     this.id,

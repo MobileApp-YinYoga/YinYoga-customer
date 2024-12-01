@@ -220,7 +220,7 @@ class _HomeContentState extends State<HomeContent> {
                       controller: _searchController,
                       onChanged: _handleSearch,
                       decoration: InputDecoration(
-                        hintText: 'Search for classes',
+                        hintText: 'Search for course...',
                         border: InputBorder.none,
                         hintStyle: TextStyle(
                           fontFamily: 'Poppins',

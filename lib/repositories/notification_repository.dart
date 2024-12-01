@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:yinyoga_customer/utils/sharedPreferences.dart';
 import '../models/notification_model.dart';
 
 class NotificationRepository {
@@ -6,12 +7,21 @@ class NotificationRepository {
 
   Future<List<NotificationModel>> fetchNotifications() async {
     try {
-       QuerySnapshot snapshot = await _firestore
-        .collection('notifications')
-        .orderBy('time', descending: true) // Sort by 'time', most recent first
-        .get();
+      var userEmail = await SharedPreferencesHelper.getData('email');
+      print('User email: $userEmail');
 
-      
+      // Fetch notifications sorted by 'time' in descending order
+      QuerySnapshot snapshot = await _firestore
+          .collection('notifications')
+          .where('email', isEqualTo: userEmail)
+          .orderBy('time', descending: true) // Sort by 'time'
+          .get();
+
+      //print nhữn cái thông báo
+      for (var doc in snapshot.docs) {
+        print(doc.data());
+      }
+
       return snapshot.docs.map((doc) {
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
         data['id'] = doc.id; // Use doc.id directly as a string

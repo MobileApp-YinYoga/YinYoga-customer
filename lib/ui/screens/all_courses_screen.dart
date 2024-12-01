@@ -356,17 +356,6 @@ class _AllCoursesScreenState extends State<AllCoursesScreen> {
                   ),
                 ],
               )),
-          // Positioned(
-          //   top: 16,
-          //   right: 16,
-          //   child: IconButton(
-          //     icon: const Icon(Icons.add_shopping_cart, color: Colors.white),
-          //     onPressed: () {
-          //       // Handle favorite action
-          //       _cartService.addToCart(course.id!, 'trannq2003@gmail.com');
-          //     },
-          //   ),
-          // ),
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(

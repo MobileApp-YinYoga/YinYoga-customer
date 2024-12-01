@@ -181,7 +181,6 @@ class PaymentPopup extends StatelessWidget {
 
       // Create notification for admin
       NotificationModel notification = NotificationModel(
-        id: DateTime.now().toIso8601String(),
         email: "",
         title: 'Booking Successful',
         description:

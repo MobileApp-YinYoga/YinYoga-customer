@@ -1,6 +1,6 @@
 class ClassInstance {
   final String? id;
-  final int courseId; // Liên kết với `Course`
+  final int courseId;
   final DateTime date;
   final String teacher;
   final String imageUrl;
@@ -28,7 +28,7 @@ class ClassInstance {
       id: map['instanceId'],
       courseId: map['courseId'],
       date: DateTime.tryParse(map['date']) ??
-          DateTime.now(), // Convert String to DateTime, with a fallback value
+          DateTime.now(),
       teacher: map['teacher'],
       imageUrl: map['imageUrl'],
     );
